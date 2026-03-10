@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" version="1.1" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+ <defs>
+  <mask id="holeMask">
+   <rect x="90" y="100" width="20" height="60" fill="#fff"/>
+   <circle cx="100" cy="135" r="5"/>
+  </mask>
+ </defs>
+ <g fill="#f2d9a6" stroke="#e0b96b">
+  <rect x="57.058" y="99.798" width="12.663" height="60.403" stroke-width="1.5968"/>
+  <rect transform="matrix(1.2497 0 0 1.2611 -23.72 -27.113)" x="90" y="87.765" width="20" height="60" mask="url(#holeMask)" stroke-width="2"/>
+  <rect x="131.58" y="99.855" width="14.547" height="60.29" stroke-width="1.7098"/>
+ </g>
+ <rect x="39.263" y="36.754" width="121.97" height="69.976" rx="8.1316" fill="#7fa2cc" stroke="#4a6fa5" stroke-width="3.024"/>
+</svg>

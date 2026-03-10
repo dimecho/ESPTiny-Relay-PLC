@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>tiny relay</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="css/tailwind.css">
+        <script defer src="js/common.js"></script>
+        <script>
+        var pnpslider, adcslider;
+        document.addEventListener('DOMContentLoaded', function(event)
+        {
+            var addons = new XMLHttpRequest();
+            addons.open('GET', 'api?addons=1', true);
+            addons.send();
+            addons.onload = function(e) {
+                if(addons.response != undefined) {
+                    var list = document.getElementById('addonsList');
+                    addons.responseText.split('\n').forEach(function (item) {
+                        //console.log(item);
+                        if(item != "") {
+                            var listremovediv = document.createElement('div');
+                            var listremovebutton = document.createElement('button');
+                            listremovebutton.id = item.toLowerCase();
+                            listremovebutton.classList.add(
+                              'py-2',
+                              'bg-red-500',
+                              'hover:bg-red-600',
+                              'text-white',
+                              'w-full',
+                              'rounded'
+                            );
+                            listremovebutton.textContent = 'Remove';
+                            listremovebutton.addEventListener('click', function() {
+                                var a = new XMLHttpRequest();
+                                a.open('GET', 'api?&addons=1&remove=' + item.id, true);
+                                a.onload = function(e) {
+                                    if(a.response == 'OK') {
+                                        location.reload();
+                                    }else{
+                                        notify('', 'Error ' + item.id, 'danger');
+                                    }
+                                }
+                                a.send();
+                            });
+                            listremovediv.appendChild(listremovebutton);
+
+                            var listlabeldiv = document.createElement('div');
+                            listlabeldiv.textContent = item.toUpperCase();
+                            listlabeldiv.classList.add(
+                              'py-2',
+                              'border',
+                              'border-gray-800',
+                              'dark:border-white',
+                              'text-gray-800',
+                              'dark:text-white',
+                              'w-full',
+                              'rounded',
+                              'text-center'
+                            );
+                            var listrundiv = document.createElement('div');
+                            var listrunbutton = document.createElement('button');
+                            listrunbutton.id = item.toLowerCase();
+                            listrunbutton.classList.add(
+                              'py-2',
+                              'bg-green-500',
+                              'hover:bg-green-600',
+                              'text-white',
+                              'w-full',
+                              'rounded'
+                            );
+                            listrunbutton.textContent = 'Run';
+                            listrunbutton.addEventListener('click', function() {
+                                var a = new XMLHttpRequest();
+                                a.open('GET', 'api?&addons=1&run=' + item.id, true);
+                                a.onload = function(e) {
+                                    if(a.response == 'OK') {
+                                        notify('', item.id + ' Executed', 'success');
+                                    }else{
+                                        notify('', 'Error ' + item.id, 'danger');
+                                    }
+                                }
+                                a.send();
+                            });
+                            listrundiv.appendChild(listrunbutton);
+
+                            list.appendChild(listremovediv);
+                            list.appendChild(listlabeldiv);
+                            list.appendChild(listrundiv);
+                        }
+                    });
+                }
+            }
+        });
+        </script>
+    </head>
+    <body class="bg-gray-100 dark:bg-gray-600 flex justify-center items-center min-h-screen p-4">
+        <div class="fixed top-0 right-0 p-3 z-[2000]" id="notify"></div>
+        <div class="fixed inset-0 bg-black opacity-50 hidden" id="modal-backdrop"></div>
+
+        <div class="w-full max-w-4xl flex flex-col gap-4">
+            <div class="flex flex-row gap-4 w-full text-lg font-semibold text-gray-800 dark:text-white">
+                <div class="grid grid-cols-1 gap-2 flex-1">
+                    <button id="wireless" class="bg-gray-500 py-2 px-4 rounded hover:bg-gray-600 transition-colors duration-200" justify-center onclick="window.location.href='index.html'"><<</button>
+                </div>
+                <div class="grid grid-cols-1 gap-2 flex-1">
+                    <button id="test-relay1" class="bg-green-500 py-2 px-4 rounded hover:bg-green-600 transition-colors duration-200" justify-center onclick="window.location.href='addons.html'">Addons</button>
+                </div>
+                <div class="grid grid-cols-1 gap-2 flex-1">
+                    <button id="test-relay1" class="bg-orange-500 py-2 px-4 rounded hover:bg-orange-600 transition-colors duration-200" justify-center onclick="window.location.href='firmware.html'">Firmware</button>
+                </div>
+            </div>
+            <div class="bg-gray-100 dark:bg-gray-500 border border-gray-800 dark:border-white rounded-lg p-4 text-gray-800 dark:text-white">
+                <div class="grid grid-cols-3 lg:grid-cols-3 gap-4 m-4" id="addonsList"></div>
+            </div>
+        </div>
+        <div class="fixed inset-0 flex items-center justify-center hidden modal" id="demo-lock">
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg w-full max-w-md mx-auto border border-gray-600 dark:border-gray-300">
+                <div class="flex modal-header justify-between items-center border-b border-gray-600 dark:border-gray-300">
+                    <h5 class="text-lg font-semibold text-gray-800 dark:text-white">Login</h5>
+                    <button id="close-modal" class="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300 focus:outline-none text-2xl" onclick="hideModal(this)">&times;</button>
+                </div>
+                <form method="POST" action="login" id="demo-lock-form">
+                    <input type="password" id="DemoPassword" name="password" class="border border-gray-300 dark:border-gray-600 focus:ring focus:ring-green-500 rounded-md p-2 w-full" placeholder="Password" required>
+                    <button type="submit" class="bg-green-500 hover:bg-green-600 text-white rounded w-full px-4 py-2 mt-4" id="demo-lock-ok">Login</button>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

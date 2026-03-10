@@ -1,0 +1,648 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="138mm" height="57mm" gorn="0" version="1.2" viewBox="0 -158 440.63 189.17" xml:space="preserve"
+    xmlns="http://www.w3.org/2000/svg">
+    <g transform="rotate(90 222.81 68.3)">
+        <rect id="rectEntireBoard" x="1" y="-156.98" width="180" height="455.79" fill="#445567" stroke-width="1.324" gorn="0.1.0.0.0.2"/>
+        <g fill="#aca793" stroke-width="1.324">
+            <ellipse id="holeTopLeft" cx="5.314" cy="-151.65" rx="2.4101" ry="2.6457" gorn="0.1.0.0.0.3"/>
+            <ellipse id="holeBottomLeft" cx="5.7949" cy="291.8" rx="2.4101" ry="2.6457" gorn="0.1.0.0.0.4"/>
+            <ellipse id="holeBottomRight" cx="175.71" cy="291.8" rx="2.4101" ry="2.6457" gorn="0.1.0.0.0.5"/>
+            <ellipse id="holeTopRight" cx="176.57" cy="-150.79" rx="2.4101" ry="2.6457" gorn="0.1.0.0.0.6"/>
+        </g>
+        <path d="m7.5278 243.66-4.0018 0.42096v15.573h-0.25011" fill="none" stroke="#fff" stroke-width=".79818" gorn="0.1.0.0.0.8.0.0.0.0"/>
+        <g transform="matrix(0 -5.5342 5.3291 0 1.2793 -39.744)">
+            <g fill="#fff" font-family="'Droid Sans'" font-size=".87928px" letter-spacing="0px" stroke-width=".99608" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.8.0.0.0.1.0.0.0" xml:space="preserve">
+                <text x="-55.262329" y="1.0860597" gorn="0.1.0.0.0.8.0.0.0.1.0.0.0.0">K1</text>
+            </g>
+        </g>
+        <path d="m7.3809 282.87h-4.0375l0.16823-12.517 3.701-3.7214v0.33831" fill="none" stroke="#fffffd" stroke-miterlimit="3.4" stroke-opacity=".99408" stroke-width=".5869" gorn="0.1.0.0.0.8.0.0.0.2"/>
+        <path d="m7.4027 184.98-3.7992 0.43938v16.257h-0.23745" fill="none" stroke="#fff" stroke-width=".79463" gorn="0.1.0.0.0.7.0.0.0.0"/>
+        <g transform="matrix(0 -5.4467 5.4147 0 1.2793 -39.744)">
+            <g fill="#fff" font-family="'Droid Sans'" font-size="1.0714px" letter-spacing="0px" stroke-width=".99608" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.7.0.0.0.1.0.0.0" xml:space="preserve">
+                <text x="-45.737904" y="1.0937815" gorn="0.1.0.0.0.7.0.0.0.1.0.0.0.0">K2</text>
+            </g>
+        </g>
+        <path d="m7.0613 227.63h-3.6153l0.15064-13.603 3.314-4.0442v0.36765" fill="none" stroke="#fffffd" stroke-miterlimit="3.4" stroke-opacity=".99408" stroke-width=".57895" gorn="0.1.0.0.0.7.0.0.0.2"/>
+        <path d="m1.097 288.05c0 4.4754 2.2122 8.1224 4.916 8.1224h169.98c2.7038 0 4.916-3.647 4.916-8.1224v2.5992c0 4.4755-2.2122 8.1224-4.916 8.1224h-169.98c-2.7038 0-4.916-3.647-4.916-8.1224z" fill-opacity=".7" stroke-width="1.3281" gorn="0.1.0.0.0.48"/>
+        <g transform="matrix(1.7654 0 0 .99299 0 46.375)">
+            <g id="4RelayModuleText" fill="#fdffff" font-family="'Droid Sans'" font-size="6.8945px" letter-spacing="0px" stroke="#fffdff" stroke-width=".13843" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.9.0.0.0" xml:space="preserve">
+                <text id="tspan8RelayModule" transform="matrix(0 -1.4105 .70895 0 0 0)" x="-146.07732" y="137.85832" font-size="8.6858px" stroke-width=".1744" gorn="0.1.0.0.0.9.0.0.0.0">8 Relay Module</text>
+            </g>
+        </g>
+        <path d="m7.3684 73.75-3.7992 0.43937v16.257h-0.23745" fill="none" stroke="#fff" stroke-width=".79463" gorn="0.1.0.0.0.10.0.0.0.0"/>
+        <g transform="matrix(0 -5.4467 5.4147 0 1.245 -154.44)">
+            <g fill="#fff" font-family="'Droid Sans'" font-size="1.0714px" letter-spacing="0px" stroke-width=".99608" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.10.0.0.0.1.0.0.0" xml:space="preserve">
+                <text x="-46.378197" y="1.1080694" gorn="0.1.0.0.0.10.0.0.0.1.0.0.0.0">K4</text>
+            </g>
+        </g>
+        <path d="m7.0271 116.4h-3.6153l0.15064-13.603 3.314-4.0443v0.36765" fill="none" stroke="#fffffd" stroke-miterlimit="3.4" stroke-opacity=".99408" stroke-width=".57895" gorn="0.1.0.0.0.10.0.0.0.2"/>
+        <path d="m7.4935 132.43-4.0018 0.42096v15.573h-0.25011" fill="none" stroke="#fff" stroke-width=".79818" gorn="0.1.0.0.0.11.0.0.0.0"/>
+        <g transform="matrix(0 -5.5342 5.3291 0 1.245 -154.44)">
+            <g fill="#fff" font-family="'Droid Sans'" font-size=".87928px" letter-spacing="0px" stroke-width=".99608" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.11.0.0.0.1.0.0.0" xml:space="preserve">
+                <text x="-55.888199" y="1.0860597" gorn="0.1.0.0.0.11.0.0.0.1.0.0.0.0">K3</text>
+            </g>
+        </g>
+        <path d="m7.3466 171.64h-4.0375l0.16823-12.517 3.701-3.7214v0.33831" fill="none" stroke="#fffffd" stroke-miterlimit="3.4" stroke-opacity=".99408" stroke-width=".5869" gorn="0.1.0.0.0.11.0.0.0.2"/>
+        <g transform="matrix(0 -1.1731 1.4944 0 0 46.375)">
+            <g id="JDVCCtext" fill="#fff" font-family="'Droid Sans'" font-size="3.7585px" letter-spacing="0px" stroke="#fff" stroke-width=".067957" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.12.0.0.0" xml:space="preserve">
+                <text x="148.72858" y="119.84716" stroke-width=".067957" gorn="0.1.0.0.0.12.0.0.0.0">JD-VCC</text>
+            </g>
+            <g id="VCCtext" fill="#fff" font-family="'Droid Sans'" font-size="3.7585px" letter-spacing="0px" stroke="#fff" stroke-width=".067957" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.13.0.0.0" xml:space="preserve">
+                <text x="139.83113" y="119.77171" stroke-width=".067957" gorn="0.1.0.0.0.13.0.0.0.0">VCC</text>
+            </g>
+        </g>
+        <g transform="matrix(0 -1.1071 1.5834 0 0 46.375)">
+            <g id="PinInText" fill="#fdffff" font-family="'Droid Sans'" font-size="3.3482px" letter-spacing="0px" stroke="#fff" stroke-width=".065704" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.14.0.0.0" xml:space="preserve">
+                <text transform="scale(1.0112 .98892)" x="-66.83667" y="114.36832" font-family="'Droid Sans'" font-size="3.3852px" stroke-width=".06643" style="font-variant-caps:normal;font-variant-ligatures:normal;font-variant-numeric:normal" gorn="0.1.0.0.0.14.0.0.0.0">
+                    <tspan x="-66.83667" y="114.36832" stroke-width=".06643">GND  IN1  IN2  IN3  IN4  IN5  IN6  IN7  IN8  VCC</tspan>
+                </text>
+            </g>
+        </g>
+        <rect id="relay2shell" x="22.199" y="178.45" width="89.423" height="53.696" fill="#00a7ff" stroke-width=".9554" gorn="0.1.0.0.0.15.0.0.0.0"/>
+        <g transform="matrix(7.0754 0 0 4.2218 -7.5191 -43.53)">
+            <g fill="#fff" font-family="'Droid Sans'" font-size="1.2597px" font-style="italic" letter-spacing="0px" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.15.0.0.0.1.0.0.0.0.0.0.0" xml:space="preserve">
+                <text transform="scale(.79177 1.263)" x="13.278975" y="43.244629" font-size="1.5601px" stroke-width="1.2336" gorn="0.1.0.0.0.15.0.0.0.1.0.0.0.0.0.0.0.0">SONGLE</text>
+            </g>
+        </g>
+        <ellipse cx="35.241" cy="197.14" rx="6.4059" ry="3.7815" fill="none" stroke="#fff" stroke-width=".50749" gorn="0.1.0.0.0.15.0.0.0.1.0.0.0.1"/>
+        <g transform="matrix(4.9937 0 0 5.9817 -7.5191 -43.53)">
+            <g fill="#fdfdfd" font-family="'Droid Sans'" font-size=".79674px" letter-spacing="0px" stroke-width=".99608" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.15.0.0.0.1.0.0.0.2.0.0.0" xml:space="preserve">
+                <text x="7.639595" y="40.507298" gorn="0.1.0.0.0.15.0.0.0.1.0.0.0.2.0.0.0.0">CQC</text>
+            </g>
+        </g>
+        <g transform="matrix(5.009 0 0 5.9634 -7.5191 -43.53)">
+            <g fill="#fdffff" font-family="'Droid Sans'" font-size="1.1642px" letter-spacing="0px" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.15.0.0.0.1.0.0.0.3.0.0.0" xml:space="preserve">
+                <text transform="scale(1.0213 .97913)" x="6.0684471" y="43.477573" font-size="1.189px" stroke-width="1.0173" gorn="0.1.0.0.0.15.0.0.0.1.0.0.0.3.0.0.0.0">10A  250VAC   10A  125VAC</text>
+            </g>
+        </g>
+        <g transform="matrix(5.009 0 0 5.9634 -7.5191 -43.53)">
+            <g fill="#fdffff" font-family="'Droid Sans'" font-size="1.1642px" letter-spacing="0px" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.15.0.0.0.1.0.0.0.4.0.0.0" xml:space="preserve">
+                <text transform="scale(.97709 1.0234)" x="6.3021913" y="42.922386" font-size="1.279px" stroke-width="1.0943" gorn="0.1.0.0.0.15.0.0.0.1.0.0.0.4.0.0.0.0">10A    30VDC  10A   28VDC</text>
+            </g>
+        </g>
+        <g transform="matrix(4.8071 0 0 6.2139 -7.5191 -43.53)">
+            <g fill="#fff" font-family="'Droid Sans'" font-size="2.0325px" letter-spacing="0px" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.15.0.0.0.1.0.0.0.5.0.0.0" xml:space="preserve">
+                <text transform="scale(1.0111 .98904)" x="6.2820258" y="44.594696" font-size="2.055px" stroke-width="1.0071" gorn="0.1.0.0.0.15.0.0.0.1.0.0.0.5.0.0.0.0">SRD-05VDC-SL-C</text>
+            </g>
+        </g>
+        <rect x="8.5494" y="180.13" width="9.3413" height="106.47" fill="#007dff" stroke="#fff" stroke-width=".093588" gorn="0.1.0.0.0.16.0.0.0.0"/>
+        <g fill="#a0892c" stroke="#000" stroke-width=".54307">
+            <ellipse cx="13.175" cy="187.87" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.16.0.0.0.1.0"/>
+            <ellipse cx="13.38" cy="226.12" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.16.0.0.0.1.2"/>
+            <ellipse cx="13.175" cy="244.18" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.16.0.0.0.1.3"/>
+            <ellipse cx="12.97" cy="262.32" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.16.0.0.0.1.4"/>
+            <ellipse cx="12.97" cy="281.24" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.16.0.0.0.1.5"/>
+        </g>
+        <g fill="#b8b4a3" fill-rule="evenodd" stroke="#4f4242" stroke-width="1.0861">
+            <path id="connector9pin" d="m10.919 185.71 4.102 3.8015v-0.2376" gorn="0.1.0.0.0.16.0.0.0.1.6"/>
+            <path id="connector7pin" d="m11.07 224.03 4.102 3.8015v-0.2376" gorn="0.1.0.0.0.16.0.0.0.1.7"/>
+            <path id="connector6pin" d="m15.43 242.04-4.102 3.8015v-0.2376" gorn="0.1.0.0.0.16.0.0.0.1.8"/>
+            <path id="connector5pin" d="m10.66 260.21 4.102 3.8015v-0.2376" gorn="0.1.0.0.0.16.0.0.0.1.9"/>
+        </g>
+        <g>
+            <ellipse cx="13.175" cy="205.69" rx="3.179" ry="3.8015" fill="#a0892c" stroke="#000" stroke-width=".54307" gorn="0.1.0.0.0.16.0.0.0.1.1"/>
+            <path id="connector8pin" d="m11.385 208.5 3.2816-4.7518h-0.20511" fill="#b8b4a3" fill-rule="evenodd" stroke="#4f4242" stroke-width="1.0861" gorn="0.1.0.0.0.16.0.0.0.1.10"/>
+            <path id="connector4pin" d="m10.66 279.1 4.102 3.8015v-0.23761" fill="#b8b4a3" fill-rule="evenodd" stroke="#4f4242" stroke-width="1.0861" gorn="0.1.0.0.0.16.0.0.0.1.11"/>
+        </g>
+        <g transform="matrix(7.0754 0 0 4.2372 -7.3041 10.783)"></g>
+        <g transform="matrix(4.9937 0 0 6.0036 -7.3041 10.783)"></g>
+        <g transform="matrix(5.009 0 0 5.9852 -7.3041 10.783)"></g>
+        <g transform="matrix(5.009 0 0 5.9852 -7.3041 10.783)"></g>
+        <rect id="relay1shell" x="22.199" y="234.05" width="89.2" height="53.458" fill="#00a7ff" gorn="0.1.0.0.0.17.0.0.0.0"/>
+        <text transform="scale(1.0171 .98323)" x="64.742157" y="244.84639" fill="#ffffff" font-family="'Droid Sans'" font-size="8.6129px" font-style="italic" letter-spacing="0px" stroke-width=".71492" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.17.0.0.0.1.0.0.0.0.0.0.0.0">SONGLE</text>
+        <ellipse cx="34.981" cy="251.56" rx="6.314" ry="3.7365" fill="none" stroke="#fff" stroke-width=".50083" gorn="0.1.0.0.0.17.0.0.0.1.0.0.0.1"/>
+        <g fill="#ffffff" font-family="'Droid Sans'" letter-spacing="0px" word-spacing="0px">
+            <text transform="scale(.92398 1.0823)" x="32.891296" y="233.83328" font-size="4.6275px" stroke-width="2.2678" style="line-height:125%" gorn="0.1.0.0.0.17.0.0.0.1.0.0.0.2.0.0.0.0">CQC</text>
+            <text transform="scale(.82927 1.2059)" x="29.485472" y="219.63029" font-size="7.1608px" stroke-width="3.5093" style="line-height:125%" gorn="0.1.0.0.0.17.0.0.0.1.0.0.0.3.0.0.0.0">10A  250VAC   10A  125VAC</text>
+            <text transform="scale(.86094 1.1615)" x="28.380745" y="234.46515" font-size="6.9056px" stroke-width="3.3843" style="line-height:125%" gorn="0.1.0.0.0.17.0.0.0.1.0.0.0.4.0.0.0.0">10A    30VDC   10A   28VDC</text>
+            <text transform="scale(.88101 1.1351)" x="26.535931" y="251.16499" font-size="11.168px" stroke-width="5.4729" style="line-height:125%" gorn="0.1.0.0.0.17.0.0.0.1.0.0.0.5.0.0.0.0">SRD-05VDC-SL-C</text>
+        </g>
+        <g transform="matrix(4.6997 0 0 6.7132 5.4556 -137.12)"></g>
+        <g transform="matrix(4.6997 0 0 6.8762 5.946 -193.45)"></g>
+        <g transform="matrix(4.7052 0 0 5.4716 7.2618 -136.41)">
+            <g id="inputPins" gorn="0.1.0.0.0.20.0.0.0">
+                <rect id="inputPinBorder" x="33.573" y="29.544" width="1.6432" height="17.449" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width=".31397" gorn="0.1.0.0.0.20.0.0.0.0"/>
+                <g fill="#aca793">
+                    <circle id="connector0pin" cx="34.394" cy="30.465" r=".30486" gorn="0.1.0.0.0.20.0.0.0.1"/>
+                    <circle id="connector10pin" cx="34.416" cy="32.082" r=".30486" gorn="0.1.0.0.0.20.0.0.0.2"/>
+                    <circle id="connector17pin" cx="34.426" cy="33.793" r=".30486" gorn="0.1.0.0.0.20.0.0.0.3"/>
+                    <circle id="connector3pin" cx="34.428" cy="35.503" r=".30486" gorn="0.1.0.0.0.20.0.0.0.4"/>
+                    <circle id="connector2pin" cx="34.436" cy="37.278" r=".30486" gorn="0.1.0.0.0.20.0.0.0.5"/>
+                    <circle id="connector1pin" cx="34.446" cy="39.037" r=".30486" gorn="0.1.0.0.0.20.0.0.0.6"/>
+                </g>
+            </g>
+        </g>
+        <g transform="matrix(4.7037 0 0 4.7133 3.1424 -102.45)">
+            <g id="jumperJdVcc" gorn="0.1.0.0.0.21.0.0.0">
+                <g transform="matrix(.0068432 -.99998 .99999 .0040563 0 0)">
+                    <rect transform="matrix(-.0045785 .99999 -.99999 .0036285 0 0)" x="34.682" y="-9.3814" width="1.5032" height="6.0393" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width=".19243" gorn="0.1.0.0.0.21.0.0.0.0.0.0.0"/>
+                    <rect transform="matrix(-.002759 1 -1 .0027703 0 0)" x="34.991" y="-8.753" width=".87359" height="3.3942" fill="none" stroke="#66d0ed" stroke-width=".4" gorn="0.1.0.0.0.21.0.0.0.1.0.0.0"/>
+                </g>
+                <ellipse transform="rotate(90)" cx="-7.5851" cy="-35.46" rx=".30424" ry=".30549" fill="#aca793" gorn="0.1.0.0.0.21.0.0.0.2"/>
+                <ellipse transform="rotate(90)" cx="-5.8363" cy="-35.457" rx=".30424" ry=".30549" fill="#aca793" gorn="0.1.0.0.0.21.0.0.0.3"/>
+            </g>
+        </g>
+        <g transform="matrix(1 0 0 .91279 .55828 14.987)"></g>
+        <g transform="matrix(1 0 0 .91279 .83946 -38.679)"></g>
+        <g transform="matrix(1 0 0 .91279 .15955 9.528)"></g>
+        <g transform="matrix(1 0 0 .91279 -.039814 9.528)">
+            <g id="diode4c" gorn="0.1.0.0.0.32.0.0.0">
+                <g transform="matrix(4.6997 0 0 6.1043 5.7248 -179.28)"></g>
+            </g>
+        </g>
+        <g transform="matrix(4.6997 0 0 6.7132 5.048 -76.993)"></g>
+        <g transform="matrix(1 0 0 .91279 1.3469 75.482)"></g>
+        <g transform="matrix(4.6997 0 0 6.7132 5.4468 -25.311)"></g>
+        <g transform="matrix(1 0 0 .91279 1.7457 131.17)"></g>
+        <g transform="matrix(1 0 0 .91279 -.039814 65.092)">
+            <g id="diode3c" gorn="0.1.0.0.0.41.0.0.0">
+                <g transform="matrix(4.6997 0 0 6.1043 5.7248 -179.28)"></g>
+                <rect transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" x="27.245" y="7.7084" width="3.699" height="2.0324" stroke="#625862" stroke-width=".2" gorn="0.1.0.0.0.18.0.0.0.0"/>
+                <g fill="#aca793">
+                    <circle transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" cx="26.737" cy="8.1962" r=".30486" gorn="0.1.0.0.0.18.0.0.0.1"/>
+                    <circle transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" cx="26.757" cy="9.1311" r=".30486" gorn="0.1.0.0.0.18.0.0.0.2"/>
+                    <circle transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" cx="31.44" cy="8.2687" r=".30486" gorn="0.1.0.0.0.18.0.0.0.3"/>
+                    <circle transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" cx="31.448" cy="9.1311" r=".30486" gorn="0.1.0.0.0.18.0.0.0.4"/>
+                </g>
+                <g fill="none" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width=".2">
+                    <path transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" d="m26.747 8.1974 0.38924 0.00885" gorn="0.1.0.0.0.18.0.0.0.5"/>
+                    <path transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" d="m26.756 9.1485 0.38924 0.00885" gorn="0.1.0.0.0.18.0.0.0.6"/>
+                    <path transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" d="m31.06 9.1352 0.38924 0.00885" gorn="0.1.0.0.0.18.0.0.0.7"/>
+                    <path transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" d="m31.042 8.255 0.38924 0.00885" gorn="0.1.0.0.0.18.0.0.0.8"/>
+                </g>
+                <g stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+                    <rect transform="matrix(1 0 0 1.9205 .039814 -20.505)" x="148.65" y="-59.891" width="5.0591" height="4.9421" fill="#b19a00" stroke-width=".72251" gorn="0.1.0.0.0.22"/>
+                    <rect transform="translate(.5981 -54.892)" x="139.38" y="-80.947" width="5.0591" height="9.4913" stroke-width="1.0013" gorn="0.1.0.0.0.26.0.0.0.0"/>
+                    <path transform="translate(.5981 -54.892)" d="m141.01-79.604 1.8293 0.054" fill="none" stroke-width="1.0712" gorn="0.1.0.0.0.26.0.0.0.1"/>
+                    <path transform="translate(.5981 -54.892)" d="m141.01-72.837 1.8293 0.054" fill="none" stroke-width="1.0712" gorn="0.1.0.0.0.26.0.0.0.2"/>
+                </g>
+                <rect transform="translate(.5981 -54.892)" x="116.54" y="-77.682" width="5.2987" height="6.6238" stroke="#2c2c2a" stroke-linecap="round" stroke-linejoin="round" stroke-width=".92797" gorn="0.1.0.0.0.27.0.0.0.0"/>
+                <g fill="none" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+                    <path transform="translate(.5981 -54.892)" d="m115.72-74.403 1.119 0.08399" stroke-width="1.0449" gorn="0.1.0.0.0.27.0.0.0.1"/>
+                    <path transform="translate(.5981 -54.892)" d="m121.26-75.88 1.2082 0.07854" stroke-width="1.0499" gorn="0.1.0.0.0.27.0.0.0.2"/>
+                    <path transform="translate(.5981 -54.892)" d="m121.33-72.851 1.152 0.0819" stroke-width="1.0469" gorn="0.1.0.0.0.27.0.0.0.3"/>
+                </g>
+                <g stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+                    <rect transform="translate(.5981 -54.892)" x="130.99" y="-80.819" width="5.0591" height="9.4913" stroke-width="1.0013" gorn="0.1.0.0.0.28.0.0.0.0"/>
+                    <path transform="translate(.5981 -54.892)" d="m132.62-79.533 1.8293 0.054" fill="none" stroke-width="1.0712" gorn="0.1.0.0.0.28.0.0.0.1"/>
+                    <path transform="translate(.5981 -54.892)" d="m132.62-72.626 1.8293 0.054" fill="none" stroke-width="1.0712" gorn="0.1.0.0.0.28.0.0.0.2"/>
+                    <rect transform="matrix(4.6997 0 0 6.1043 5.7248 -179.28)" x="23.562" y="2.1424" width="1.6631" height="2.8309" stroke-width=".2" gorn="0.1.0.0.0.41.0.0.0.0.0.0.0.0"/>
+                </g>
+                <g fill="none">
+                    <rect transform="matrix(4.6997 0 0 6.1043 5.7248 -179.28)" x="24.128" y="3.2121" width=".4954" height=".95541" stroke="#ed3266" stroke-width=".5" gorn="0.1.0.0.0.41.0.0.0.0.0.0.0.1"/>
+                    <path d="m118.6-151.08 3.2652 0.0157v0" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8806" gorn="0.1.0.0.0.41.0.0.0.1"/>
+                    <path d="m118.63-163.94 3.2652 0.0157v0" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8806" gorn="0.1.0.0.0.41.0.0.0.2"/>
+                </g>
+            </g>
+        </g>
+        <g transform="matrix(1 0 0 .91279 -.039814 123.57)">
+            <g id="diode2c" gorn="0.1.0.0.0.42.0.0.0">
+                <g transform="matrix(4.6997 0 0 6.1043 5.7248 -179.28)"></g>
+            </g>
+        </g>
+        <g transform="matrix(1 0 0 .91279 -.039814 178.4)">
+            <g id="diode1c" gorn="0.1.0.0.0.43.0.0.0">
+                <g transform="matrix(4.6997 0 0 6.1043 5.7248 -179.28)"></g>
+            </g>
+        </g>
+        <rect x="22.165" y="67.222" width="89.423" height="53.696" fill="#00a7ff" stroke-width=".9554" gorn="0.1.0.0.0.44.0.0.0.0"/>
+        <g transform="matrix(7.0754 0 0 4.2218 -7.5533 -158.22)">
+            <g fill="#fff" font-family="'Droid Sans'" font-size="1.2597px" font-style="italic" letter-spacing="0px" stroke-width=".99608" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.0.0.0.0" xml:space="preserve">
+                <text x="10.420964" y="54.751587" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.0.0.0.0.0">SONGLE</text>
+            </g>
+        </g>
+        <ellipse cx="35.206" cy="85.908" rx="6.4059" ry="3.7815" fill="none" stroke="#fff" stroke-width=".50749" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.1"/>
+        <g transform="matrix(4.9937 0 0 5.9817 -7.5533 -158.22)">
+            <g fill="#fdfdfd" font-family="'Droid Sans'" font-size=".79674px" letter-spacing="0px" stroke-width=".99608" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.2.0.0.0" xml:space="preserve">
+                <text x="7.639595" y="41.086338" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.2.0.0.0.0">CQC</text>
+            </g>
+        </g>
+        <g transform="matrix(5.009 0 0 5.9634 -7.5533 -158.22)">
+            <g fill="#fdffff" font-family="'Droid Sans'" font-size="1.1642px" letter-spacing="0px" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.3.0.0.0" xml:space="preserve">
+                <text transform="scale(1.0236 .97696)" x="6.1126456" y="44.169041" font-family="'Droid Sans'" font-size="1.1848px" stroke-width="1.0196" style="font-variant-caps:normal;font-variant-ligatures:normal;font-variant-numeric:normal" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.3.0.0.0.0">10A  250VAC   10A  125VAC</text>
+            </g>
+        </g>
+        <g transform="matrix(5.009 0 0 5.9634 -7.5533 -158.22)">
+            <g fill="#fdffff" font-family="'Droid Sans'" font-size="1.1642px" letter-spacing="0px" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.4.0.0.0" xml:space="preserve">
+                <text transform="scale(1.0116 .9885)" x="6.2263927" y="44.91877" font-family="'Droid Sans'" font-size="1.1936px" stroke-width="1.0077" style="font-variant-caps:normal;font-variant-ligatures:normal;font-variant-numeric:normal" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.4.0.0.0.0">10A    30VDC   10A   28VDC</text>
+            </g>
+        </g>
+        <g transform="matrix(4.8071 0 0 6.2139 -7.5533 -158.22)">
+            <g fill="#fff" font-family="'Droid Sans'" font-size="2.0325px" letter-spacing="0px" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.5.0.0.0" xml:space="preserve">
+                <text transform="scale(1.0119 .98825)" x="6.276823" y="45.194263" font-size="2.0567px" stroke-width="1.0079" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.5.0.0.0.0">SRD-05VDC-SL-C</text>
+            </g>
+        </g>
+        <rect x="8.5152" y="68.04" width="9.3413" height="106.47" fill="#007dff" stroke="#fff" stroke-width=".093588" gorn="0.1.0.0.0.45.0.0.0.0"/>
+        <g fill="#a0892c" stroke="#000" stroke-width=".54307">
+            <ellipse cx="13.141" cy="75.775" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.45.0.0.0.1.0"/>
+            <ellipse cx="13.141" cy="93.595" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.45.0.0.0.1.1"/>
+            <ellipse cx="13.346" cy="114.03" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.45.0.0.0.1.2"/>
+            <ellipse cx="13.141" cy="132.08" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.45.0.0.0.1.3"/>
+            <ellipse cx="12.936" cy="151.09" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.45.0.0.0.1.4"/>
+            <ellipse cx="12.936" cy="169.15" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.45.0.0.0.1.5"/>
+        </g>
+        <g fill="#b8b4a3" fill-rule="evenodd" stroke="#4f4242" stroke-width="1.0861">
+            <path id="connector16pin" d="m10.885 73.875 4.102 3.8015v-0.2376" gorn="0.1.0.0.0.45.0.0.0.1.6"/>
+            <path id="connector14pin" d="m11.2 111.98 4.102 3.8015v-0.2376" gorn="0.1.0.0.0.45.0.0.0.1.7"/>
+            <path id="connector13pin" d="m15.286 130.04-4.102 3.8015v-0.2376" gorn="0.1.0.0.0.45.0.0.0.1.8"/>
+            <path id="connector12pin" d="m10.79 149.05 4.102 3.8015v-0.2376" gorn="0.1.0.0.0.45.0.0.0.1.9"/>
+            <path id="connector15pin" d="m11.405 96.066 3.2816-4.7518h-0.20511" gorn="0.1.0.0.0.45.0.0.0.1.10"/>
+            <path id="connector11pin" d="m10.79 167.11 4.102 3.8015v-0.2376" gorn="0.1.0.0.0.45.0.0.0.1.11"/>
+        </g>
+        <rect x="22.165" y="122.82" width="89.423" height="53.458" fill="#00a7ff" stroke-width=".9554" gorn="0.1.0.0.0.46.0.0.0.0"/>
+        <g transform="matrix(7.0754 0 0 4.2372 -7.3384 -103.91)">
+            <g fill="#fff" font-family="'Droid Sans'" font-size="1.2597px" font-style="italic" letter-spacing="0px" stroke-width=".99608" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.46.0.0.0.1.0.0.0.0.0.0.0" xml:space="preserve">
+                <text x="10.420964" y="54.772221" gorn="0.1.0.0.0.46.0.0.0.1.0.0.0.0.0.0.0.0">SONGLE</text>
+            </g>
+        </g>
+        <ellipse cx="35.421" cy="140.34" rx="6.4059" ry="3.7953" fill="none" stroke="#fff" stroke-width=".50841" gorn="0.1.0.0.0.46.0.0.0.1.0.0.0.1"/>
+        <g transform="matrix(4.9937 0 0 6.0036 -7.3384 -103.91)">
+            <g fill="#fdfdfd" font-family="'Droid Sans'" font-size=".79674px" letter-spacing="0px" stroke-width=".99608" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.46.0.0.0.1.0.0.0.2.0.0.0" xml:space="preserve">
+                <text x="7.639595" y="40.956779" gorn="0.1.0.0.0.46.0.0.0.1.0.0.0.2.0.0.0.0">CQC</text>
+            </g>
+        </g>
+        <g transform="matrix(5.009 0 0 5.9852 -7.3384 -103.91)">
+            <g fill="#fdffff" font-family="'Droid Sans'" font-size="1.1642px" letter-spacing="0px" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.46.0.0.0.1.0.0.0.3.0.0.0" xml:space="preserve">
+                <text transform="scale(1.0241 .97648)" x="5.9911962" y="44.057812" font-size="1.1923px" stroke-width="1.0201" gorn="0.1.0.0.0.46.0.0.0.1.0.0.0.3.0.0.0.0">10A  250VAC   10A  125VAC</text>
+            </g>
+        </g>
+        <g transform="matrix(5.009 0 0 5.9852 -7.3384 -103.91)">
+            <g fill="#fdffff" font-family="'Droid Sans'" font-size="1.1642px" letter-spacing="0px" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.46.0.0.0.1.0.0.0.4.0.0.0" xml:space="preserve">
+                <text transform="scale(1.022 .97848)" x="6.0604167" y="45.245701" font-size="1.1898px" stroke-width="1.018" gorn="0.1.0.0.0.46.0.0.0.1.0.0.0.4.0.0.0.0">10A    30VDC   10A   28VDC</text>
+            </g>
+        </g>
+        <g transform="matrix(4.8071 0 0 6.2366 -7.3384 -103.91)">
+            <g fill="#fff" font-family="'Droid Sans'" font-size="2.0325px" letter-spacing="0px" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.46.0.0.0.1.0.0.0.5.0.0.0" xml:space="preserve">
+                <text transform="scale(1.0103 .98982)" x="6.2872095" y="44.996445" font-size="2.0534px" stroke-width="1.0063" gorn="0.1.0.0.0.46.0.0.0.1.0.0.0.5.0.0.0.0">SRD-05VDC-SL-C</text>
+            </g>
+        </g>
+        <path d="m1.049-154.17h176.33c1.8974 0 3.4483 3.2623 3.4483 7.2279v-3.6082c0-3.9656-1.5509-7.228-3.4483-7.228h-176.33z" fill="#fff" fill-opacity=".1" stroke-width="1.324" gorn="0.1.0.0.0.47"/>
+        <g>
+            <path d="m7.487-37.609-3.7992 0.43937v16.257h-0.23745" fill="none" stroke="#fff" stroke-width=".79463" gorn="0.1.0.0.0.10.0.0.0.0"/>
+            <path d="m7.1457 5.0372h-3.6153l0.15064-13.603 3.314-4.0442v0.36765" fill="none" stroke="#fffffd" stroke-miterlimit="3.4" stroke-opacity=".99408" stroke-width=".57895" gorn="0.1.0.0.0.10.0.0.0.2"/>
+            <text transform="matrix(0 -1.0689 .9355 0 0 0)" x="12.348851" y="7.8712325" fill="#f9f9f9" font-family="'Droid Sans'" font-size="5.696px" letter-spacing="0px" stroke-width=".47466" word-spacing="0px" style="font-variant-caps:normal;font-variant-ligatures:normal;font-variant-numeric:normal;line-height:125%" gorn="0.1.0.0.0.10.0.0.0.1.0.0.0.0">
+                <tspan x="12.348851" y="7.8712325">K6</tspan>
+            </text>
+            <path d="m7.6121 21.071-4.0018 0.42096v15.573h-0.25011" fill="none" stroke="#fff" stroke-width=".79818" gorn="0.1.0.0.0.11.0.0.0.0"/>
+            <path d="m7.4652 60.281h-4.0375l0.16823-12.517 3.701-3.7214v0.33831" fill="none" stroke="#fffffd" stroke-miterlimit="3.4" stroke-opacity=".99408" stroke-width=".5869" gorn="0.1.0.0.0.11.0.0.0.2"/>
+            <text transform="matrix(0 -.91169 1.0969 0 0 0)" x="-47.212448" y="6.8384557" fill="#ffffff" font-family="'Droid Sans'" font-size="5.2659px" letter-spacing="0px" stroke-width=".43883" word-spacing="0px" style="font-variant-caps:normal;font-variant-ligatures:normal;font-variant-numeric:normal;line-height:125%" gorn="0.1.0.0.0.11.0.0.0.1.0.0.0.0">
+                <tspan x="-47.212448" y="6.8384557">K5</tspan>
+            </text>
+        </g>
+        <rect x="22.283" y="-44.137" width="89.423" height="53.696" fill="#00a7ff" stroke-width=".9554" gorn="0.1.0.0.0.44.0.0.0.0"/>
+        <text transform="scale(1.1815 .84639)" x="58.225147" y="-45.871468" fill="#f9f9f9" font-family="'Droid Sans'" font-size="6.8703px" font-style="italic" letter-spacing="0px" stroke-width=".57253" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.0.0.0.0.0">SONGLE</text>
+        <ellipse cx="35.325" cy="-25.451" rx="6.4059" ry="3.7815" fill="none" stroke="#fff" stroke-width=".50749" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.1"/>
+        <g font-family="'Droid Sans'" letter-spacing="0px" word-spacing="0px">
+            <text transform="scale(.89185 1.1213)" x="34.142391" y="-21.090441" fill="#f9f9f9" font-size="4.9068px" stroke-width=".4089" style="line-height:125%" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.2.0.0.0.0">CQC</text>
+            <text transform="scale(.96164 1.0399)" x="24.948982" y="-11.785106" fill="#ffffff" font-size="6.9717px" stroke-width="5.9648" style="line-height:125%" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.3.0.0.0.0">10A 250VAC 10A 125VAC</text>
+            <text transform="scale(.94309 1.0603)" x="25.096714" y="-3.948879" fill="#ffffff" font-size="7.3154px" stroke-width="6.2589" style="line-height:125%" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.4.0.0.0.0">10A  30VDC 10A  28VDC</text>
+            <text transform="scale(.88688 1.1276)" x="26.048794" y="7.0510626" fill="#f9f9f9" font-size="11.201px" stroke-width="5.4893" style="line-height:125%" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.5.0.0.0.0">SRD-05VDC-SL-C</text>
+        </g>
+        <rect x="8.6335" y="-43.319" width="9.3413" height="106.47" fill="#007dff" stroke="#fff" stroke-width=".093588" gorn="0.1.0.0.0.45.0.0.0.0"/>
+        <g fill="#a0892c" stroke="#000" stroke-width=".54307">
+            <ellipse cx="13.259" cy="-35.584" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.45.0.0.0.1.0"/>
+            <ellipse cx="13.259" cy="-17.764" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.45.0.0.0.1.1"/>
+            <ellipse cx="13.464" cy="2.6686" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.45.0.0.0.1.2"/>
+            <ellipse cx="13.259" cy="20.726" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.45.0.0.0.1.3"/>
+            <ellipse cx="13.054" cy="39.733" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.45.0.0.0.1.4"/>
+            <ellipse cx="13.054" cy="57.79" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.45.0.0.0.1.5"/>
+        </g>
+        <g fill="#b8b4a3" fill-rule="evenodd" stroke="#4f4242" stroke-width="1.0861">
+            <path d="m11.003-37.484 4.102 3.8015v-0.2376" gorn="0.1.0.0.0.45.0.0.0.1.6"/>
+            <path d="m11.319 0.62595 4.102 3.8015v-0.2376" gorn="0.1.0.0.0.45.0.0.0.1.7"/>
+            <path d="m15.405 18.683-4.102 3.8015v-0.2376" gorn="0.1.0.0.0.45.0.0.0.1.8"/>
+            <path d="m10.909 37.69 4.102 3.8015v-0.2376" gorn="0.1.0.0.0.45.0.0.0.1.9"/>
+            <path d="m11.524-15.293 3.2816-4.7518h-0.2051" gorn="0.1.0.0.0.45.0.0.0.1.10"/>
+            <path d="m10.909 55.747 4.102 3.8015v-0.2376" gorn="0.1.0.0.0.45.0.0.0.1.11"/>
+        </g>
+        <rect x="22.283" y="11.46" width="89.423" height="53.458" fill="#00a7ff" stroke-width=".9554" gorn="0.1.0.0.0.46.0.0.0.0"/>
+        <text transform="scale(1.2684 .78841)" x="53.195858" y="22.516394" fill="#f9f9f9" font-family="'Droid Sans'" font-size="6.8092px" font-style="italic" letter-spacing="0px" stroke-width=".56743" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.46.0.0.0.1.0.0.0.0.0.0.0.0">SONGLE</text>
+        <ellipse cx="35.54" cy="28.977" rx="6.4059" ry="3.7953" fill="none" stroke="#fff" stroke-width=".50841" gorn="0.1.0.0.0.46.0.0.0.1.0.0.0.1"/>
+        <g font-family="'Droid Sans'" letter-spacing="0px" word-spacing="0px">
+            <text transform="scale(.95749 1.0444)" x="32.014847" y="29.629042" fill="#ffffff" font-size="4.8415px" stroke-width=".40346" style="line-height:125%" gorn="0.1.0.0.0.46.0.0.0.1.0.0.0.2.0.0.0.0">CQC</text>
+            <text transform="scale(.98311 1.0172)" x="24.507296" y="41.510796" fill="#ffffff" font-size="6.8504px" stroke-width="5.861" style="line-height:125%" gorn="0.1.0.0.0.46.0.0.0.1.0.0.0.3.0.0.0.0">10A 250VAC 10A 125VAC</text>
+            <text transform="scale(.99533 1.0047)" x="24.213396" y="49.477013" fill="#f9f9f9" font-size="6.9355px" stroke-width="5.9339" style="line-height:125%" gorn="0.1.0.0.0.46.0.0.0.1.0.0.0.4.0.0.0.0">10A  30VDC 10A  28VDC</text>
+            <text transform="scale(.88698 1.1274)" x="26.285217" y="55.435173" fill="#ffffff" font-size="11.243px" stroke-width="5.51" style="line-height:125%" gorn="0.1.0.0.0.46.0.0.0.1.0.0.0.5.0.0.0.0">SRD-05VDC-SL-C</text>
+        </g>
+        <rect x="22.129" y="-98.805" width="89.423" height="52.613" fill="#00a7ff" stroke-width=".94571" gorn="0.1.0.0.0.44.0.0.0.0"/>
+        <text transform="scale(1.1936 .83781)" x="57.505283" y="-111.72031" fill="#f9f9f9" font-family="'Droid Sans'" font-size="6.8007px" font-style="italic" letter-spacing="0px" stroke-width=".56673" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.0.0.0.0.0">SONGLE</text>
+        <ellipse cx="35.17" cy="-80.496" rx="6.4059" ry="3.7052" fill="none" stroke="#fff" stroke-width=".50234" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.1"/>
+        <g font-family="'Droid Sans'" letter-spacing="0px" word-spacing="0px">
+            <text transform="scale(.90098 1.1099)" x="33.624554" y="-70.933899" fill="#f9f9f9" font-size="4.8571px" stroke-width=".40476" style="line-height:125%" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.2.0.0.0.0">CQC</text>
+            <text transform="scale(.97149 1.0293)" x="24.536802" y="-65.640312" fill="#ffffff" font-size="6.901px" stroke-width="5.9043" style="line-height:125%" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.3.0.0.0.0">10A 250VAC 10A 125VAC</text>
+            <text transform="scale(.95345 1.0488)" x="24.658243" y="-56.8722" fill="#ffffff" font-size="7.2622px" stroke-width="6.2134" style="line-height:125%" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.4.0.0.0.0">10A  30VDC 10A  28VDC</text>
+            <text transform="scale(.89596 1.1161)" x="25.612038" y="-42.7985" fill="#f9f9f9" font-size="11.088px" stroke-width="5.4337" style="line-height:125%" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.5.0.0.0.0">SRD-05VDC-SL-C</text>
+        </g>
+        <rect x="22.132" y="-153.42" width="89.423" height="52.458" fill="#00a7ff" stroke-width=".94432" gorn="0.1.0.0.0.44.0.0.0.0"/>
+        <text transform="scale(1.1953 .83658)" x="57.423656" y="-177.18536" fill="#f9f9f9" font-family="'Droid Sans'" font-size="6.7907px" font-style="italic" letter-spacing="0px" stroke-width=".56589" word-spacing="0px" style="line-height:125%" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.0.0.0.0.0">SONGLE</text>
+        <ellipse cx="35.174" cy="-135.16" rx="6.4059" ry="3.6943" fill="none" stroke="#fff" stroke-width=".5016" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.1"/>
+        <g font-family="'Droid Sans'" letter-spacing="0px" word-spacing="0px">
+            <text transform="scale(.90231 1.1083)" x="33.579041" y="-120.37016" fill="#f9f9f9" font-size="4.8499px" stroke-width=".40416" style="line-height:125%" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.2.0.0.0.0">CQC</text>
+            <text transform="scale(.97115 1.0297)" x="24.552481" y="-118.74475" fill="#ffffff" font-size="6.8783px" stroke-width="5.8849" style="line-height:125%" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.3.0.0.0.0">10A 250VAC 10A 125VAC</text>
+            <text transform="scale(.95398 1.0482)" x="24.649693" y="-109.11255" fill="#ffffff" font-size="7.2472px" stroke-width="6.2005" style="line-height:125%" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.4.0.0.0.0">10A  30VDC 10A  28VDC</text>
+            <text transform="scale(.89728 1.1145)" x="25.578337" y="-91.999878" fill="#f9f9f9" font-size="11.071px" stroke-width="5.4257" style="line-height:125%" gorn="0.1.0.0.0.44.0.0.0.1.0.0.0.5.0.0.0.0">SRD-05VDC-SL-C</text>
+        </g>
+        <rect x="8.6362" y="-152.82" width="9.3413" height="106.47" fill="#007dff" stroke="#fff" stroke-width=".093588" gorn="0.1.0.0.0.45.0.0.0.0"/>
+        <g fill="#a0892c" stroke="#000" stroke-width=".54307">
+            <ellipse cx="13.262" cy="-145.08" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.45.0.0.0.1.0"/>
+            <ellipse cx="13.262" cy="-127.27" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.45.0.0.0.1.1"/>
+            <ellipse cx="13.467" cy="-106.83" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.45.0.0.0.1.2"/>
+            <ellipse cx="13.262" cy="-88.776" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.45.0.0.0.1.3"/>
+            <ellipse cx="13.057" cy="-69.768" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.45.0.0.0.1.4"/>
+            <ellipse cx="13.057" cy="-51.711" rx="3.179" ry="3.8015" gorn="0.1.0.0.0.45.0.0.0.1.5"/>
+        </g>
+        <g fill="#b8b4a3" fill-rule="evenodd" stroke="#4f4242" stroke-width="1.0861">
+            <path d="m11.006-146.99 4.102 3.8015v-0.2376" gorn="0.1.0.0.0.45.0.0.0.1.6"/>
+            <path d="m11.322-108.88 4.102 3.8015v-0.2376" gorn="0.1.0.0.0.45.0.0.0.1.7"/>
+            <path d="m15.408-90.818-4.102 3.8015v-0.2376" gorn="0.1.0.0.0.45.0.0.0.1.8"/>
+            <path d="m10.911-71.811 4.102 3.8015v-0.2376" gorn="0.1.0.0.0.45.0.0.0.1.9"/>
+            <path d="m11.527-124.79 3.2816-4.7518h-0.2051" gorn="0.1.0.0.0.45.0.0.0.1.10"/>
+            <path d="m10.911-53.754 4.102 3.8015v-0.2376" gorn="0.1.0.0.0.45.0.0.0.1.11"/>
+        </g>
+        <g>
+            <path d="m7.3558-147.55-3.7992 0.43938v16.257h-0.23745" fill="none" stroke="#fff" stroke-width=".79463" gorn="0.1.0.0.0.10.0.0.0.0"/>
+            <path d="m7.0144-104.91h-3.6153l0.15064-13.603 3.314-4.0442v0.36765" fill="none" stroke="#fffffd" stroke-miterlimit="3.4" stroke-opacity=".99408" stroke-width=".57895" gorn="0.1.0.0.0.10.0.0.0.2"/>
+            <text transform="matrix(0 -1.0689 .9355 0 0 0)" x="115.19967" y="7.7309313" fill="#f9f9f9" font-family="'Droid Sans'" font-size="5.696px" letter-spacing="0px" stroke-width=".47466" word-spacing="0px" style="font-variant-caps:normal;font-variant-ligatures:normal;font-variant-numeric:normal;line-height:125%" gorn="0.1.0.0.0.10.0.0.0.1.0.0.0.0">
+                <tspan x="115.19967" y="7.7309313">K8</tspan>
+            </text>
+            <path d="m7.4809-88.871-4.0018 0.42096v15.573h-0.25011" fill="none" stroke="#fff" stroke-width=".79818" gorn="0.1.0.0.0.11.0.0.0.0"/>
+            <path d="m7.334-49.661h-4.0375l0.16823-12.517 3.701-3.7214v0.33831" fill="none" stroke="#fffffd" stroke-miterlimit="3.4" stroke-opacity=".99408" stroke-width=".5869" gorn="0.1.0.0.0.11.0.0.0.2"/>
+            <text transform="matrix(0 -.91169 1.0969 0 0 0)" x="73.379517" y="6.7187948" fill="#ffffff" font-family="'Droid Sans'" font-size="5.2659px" letter-spacing="0px" stroke-width=".43883" word-spacing="0px" style="font-variant-caps:normal;font-variant-ligatures:normal;font-variant-numeric:normal;line-height:125%" gorn="0.1.0.0.0.11.0.0.0.1.0.0.0.0">
+                <tspan x="73.379517" y="6.7187948">K7</tspan>
+            </text>
+        </g>
+        <g transform="matrix(1 0 0 .91279 .33095 119.78)">
+            <rect transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" x="27.245" y="7.7084" width="3.699" height="2.0324" stroke="#625862" stroke-width=".2" gorn="0.1.0.0.0.18.0.0.0.0"/>
+            <g fill="#aca793">
+                <circle transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" cx="26.737" cy="8.1962" r=".30486" gorn="0.1.0.0.0.18.0.0.0.1"/>
+                <circle transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" cx="26.757" cy="9.1311" r=".30486" gorn="0.1.0.0.0.18.0.0.0.2"/>
+                <circle transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" cx="31.44" cy="8.2687" r=".30486" gorn="0.1.0.0.0.18.0.0.0.3"/>
+                <circle transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" cx="31.448" cy="9.1311" r=".30486" gorn="0.1.0.0.0.18.0.0.0.4"/>
+            </g>
+            <g fill="none" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width=".2">
+                <path transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" d="m26.747 8.1974 0.38924 0.00885" gorn="0.1.0.0.0.18.0.0.0.5"/>
+                <path transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" d="m26.756 9.1485 0.38924 0.00885" gorn="0.1.0.0.0.18.0.0.0.6"/>
+                <path transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" d="m31.06 9.1352 0.38924 0.00885" gorn="0.1.0.0.0.18.0.0.0.7"/>
+                <path transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" d="m31.042 8.255 0.38924 0.00885" gorn="0.1.0.0.0.18.0.0.0.8"/>
+            </g>
+            <g stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+                <rect transform="matrix(1 0 0 1.9205 .039814 -20.505)" x="148.65" y="-59.891" width="5.0591" height="4.9421" fill="#b19a00" stroke-width=".72251" gorn="0.1.0.0.0.22"/>
+                <rect transform="translate(.5981 -54.892)" x="139.38" y="-80.947" width="5.0591" height="9.4913" stroke-width="1.0013" gorn="0.1.0.0.0.26.0.0.0.0"/>
+                <path transform="translate(.5981 -54.892)" d="m141.01-79.604 1.8293 0.054" fill="none" fill-rule="evenodd" stroke-width="1.0712" gorn="0.1.0.0.0.26.0.0.0.1"/>
+                <path transform="translate(.5981 -54.892)" d="m141.01-72.837 1.8293 0.054" fill="none" fill-rule="evenodd" stroke-width="1.0712" gorn="0.1.0.0.0.26.0.0.0.2"/>
+            </g>
+            <rect transform="translate(.5981 -54.892)" x="116.54" y="-77.682" width="5.2987" height="6.6238" stroke="#2c2c2a" stroke-linecap="round" stroke-linejoin="round" stroke-width=".92797" gorn="0.1.0.0.0.27.0.0.0.0"/>
+            <g fill="none" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+                <path transform="translate(.5981 -54.892)" d="m115.72-74.403 1.119 0.08399" stroke-width="1.0449" gorn="0.1.0.0.0.27.0.0.0.1"/>
+                <path transform="translate(.5981 -54.892)" d="m121.26-75.88 1.2082 0.07854" stroke-width="1.0499" gorn="0.1.0.0.0.27.0.0.0.2"/>
+                <path transform="translate(.5981 -54.892)" d="m121.33-72.851 1.152 0.0819" stroke-width="1.0469" gorn="0.1.0.0.0.27.0.0.0.3"/>
+            </g>
+            <g stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+                <rect transform="translate(.5981 -54.892)" x="130.99" y="-80.819" width="5.0591" height="9.4913" stroke-width="1.0013" gorn="0.1.0.0.0.28.0.0.0.0"/>
+                <path transform="translate(.5981 -54.892)" d="m132.62-79.533 1.8293 0.054" fill="none" fill-rule="evenodd" stroke-width="1.0712" gorn="0.1.0.0.0.28.0.0.0.1"/>
+                <path transform="translate(.5981 -54.892)" d="m132.62-72.626 1.8293 0.054" fill="none" fill-rule="evenodd" stroke-width="1.0712" gorn="0.1.0.0.0.28.0.0.0.2"/>
+                <rect transform="matrix(4.6997 0 0 6.1043 5.7248 -179.28)" x="23.562" y="2.1424" width="1.6631" height="2.8309" stroke-width=".2" gorn="0.1.0.0.0.41.0.0.0.0.0.0.0.0"/>
+            </g>
+            <g fill="none">
+                <rect transform="matrix(4.6997 0 0 6.1043 5.7248 -179.28)" x="24.128" y="3.2121" width=".4954" height=".95541" stroke="#ed3266" stroke-width=".5" gorn="0.1.0.0.0.41.0.0.0.0.0.0.0.1"/>
+                <path d="m118.6-151.08 3.2652 0.0157v0" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8806" gorn="0.1.0.0.0.41.0.0.0.1"/>
+                <path d="m118.63-163.94 3.2652 0.0157v0" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8806" gorn="0.1.0.0.0.41.0.0.0.2"/>
+            </g>
+        </g>
+        <g transform="matrix(1 0 0 .91279 .92302 173.9)">
+            <rect transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" x="27.245" y="7.7084" width="3.699" height="2.0324" stroke="#625862" stroke-width=".2" gorn="0.1.0.0.0.18.0.0.0.0"/>
+            <g fill="#aca793">
+                <circle transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" cx="26.737" cy="8.1962" r=".30486" gorn="0.1.0.0.0.18.0.0.0.1"/>
+                <circle transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" cx="26.757" cy="9.1311" r=".30486" gorn="0.1.0.0.0.18.0.0.0.2"/>
+                <circle transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" cx="31.44" cy="8.2687" r=".30486" gorn="0.1.0.0.0.18.0.0.0.3"/>
+                <circle transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" cx="31.448" cy="9.1311" r=".30486" gorn="0.1.0.0.0.18.0.0.0.4"/>
+            </g>
+            <g fill="none" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width=".2">
+                <path transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" d="m26.747 8.1974 0.38924 0.00885" gorn="0.1.0.0.0.18.0.0.0.5"/>
+                <path transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" d="m26.756 9.1485 0.38924 0.00885" gorn="0.1.0.0.0.18.0.0.0.6"/>
+                <path transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" d="m31.06 9.1352 0.38924 0.00885" gorn="0.1.0.0.0.18.0.0.0.7"/>
+                <path transform="matrix(4.6997 0 0 7.3546 5.4954 -221.54)" d="m31.042 8.255 0.38924 0.00885" gorn="0.1.0.0.0.18.0.0.0.8"/>
+            </g>
+            <g stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+                <rect transform="matrix(1 0 0 1.9205 .039814 -20.505)" x="148.65" y="-59.891" width="5.0591" height="4.9421" fill="#b19a00" stroke-width=".72251" gorn="0.1.0.0.0.22"/>
+                <rect transform="translate(.5981 -54.892)" x="139.38" y="-80.947" width="5.0591" height="9.4913" stroke-width="1.0013" gorn="0.1.0.0.0.26.0.0.0.0"/>
+                <path transform="translate(.5981 -54.892)" d="m141.01-79.604 1.8293 0.054" fill="none" fill-rule="evenodd" stroke-width="1.0712" gorn="0.1.0.0.0.26.0.0.0.1"/>
+                <path transform="translate(.5981 -54.892)" d="m141.01-72.837 1.8293 0.054" fill="none" fill-rule="evenodd" stroke-width="1.0712" gorn="0.1.0.0.0.26.0.0.0.2"/>
+            </g>
+            <rect transform="translate(.5981 -54.892)" x="116.54" y="-77.682" width="5.2987" height="6.6238" stroke="#2c2c2a" stroke-linecap="round" stroke-linejoin="round" stroke-width=".92797" gorn="0.1.0.0.0.27.0.0.0.0"/>
+            <g fill="none" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+                <path transform="translate(.5981 -54.892)" d="m115.72-74.403 1.119 0.08399" stroke-width="1.0449" gorn="0.1.0.0.0.27.0.0.0.1"/>
+                <path transform="translate(.5981 -54.892)" d="m121.26-75.88 1.2082 0.07854" stroke-width="1.0499" gorn="0.1.0.0.0.27.0.0.0.2"/>
+                <path transform="translate(.5981 -54.892)" d="m121.33-72.851 1.152 0.0819" stroke-width="1.0469" gorn="0.1.0.0.0.27.0.0.0.3"/>
+            </g>
+            <g stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+                <rect transform="translate(.5981 -54.892)" x="130.99" y="-80.819" width="5.0591" height="9.4913" stroke-width="1.0013" gorn="0.1.0.0.0.28.0.0.0.0"/>
+                <path transform="translate(.5981 -54.892)" d="m132.62-79.533 1.8293 0.054" fill="none" fill-rule="evenodd" stroke-width="1.0712" gorn="0.1.0.0.0.28.0.0.0.1"/>
+                <path transform="translate(.5981 -54.892)" d="m132.62-72.626 1.8293 0.054" fill="none" fill-rule="evenodd" stroke-width="1.0712" gorn="0.1.0.0.0.28.0.0.0.2"/>
+                <rect transform="matrix(4.6997 0 0 6.1043 5.7248 -179.28)" x="23.562" y="2.1424" width="1.6631" height="2.8309" stroke-width=".2" gorn="0.1.0.0.0.41.0.0.0.0.0.0.0.0"/>
+            </g>
+            <g fill="none">
+                <rect transform="matrix(4.6997 0 0 6.1043 5.7248 -179.28)" x="24.128" y="3.2121" width=".4954" height=".95541" stroke="#ed3266" stroke-width=".5" gorn="0.1.0.0.0.41.0.0.0.0.0.0.0.1"/>
+                <path d="m118.6-151.08 3.2652 0.0157v0" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8806" gorn="0.1.0.0.0.41.0.0.0.1"/>
+                <path d="m118.63-163.94 3.2652 0.0157v0" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8806" gorn="0.1.0.0.0.41.0.0.0.2"/>
+            </g>
+        </g>
+        <g fill="#aca793" stroke-width="5.0739">
+            <ellipse cx="169.2" cy="115.53" rx="1.4344" ry="1.6681" gorn="0.1.0.0.0.20.0.0.0.6"/>
+            <ellipse cx="169.24" cy="106.21" rx="1.4344" ry="1.6681" gorn="0.1.0.0.0.20.0.0.0.6"/>
+            <ellipse cx="169.16" cy="96.575" rx="1.4344" ry="1.6681" gorn="0.1.0.0.0.20.0.0.0.6"/>
+            <ellipse cx="169.32" cy="86.995" rx="1.4344" ry="1.6681" gorn="0.1.0.0.0.20.0.0.0.6"/>
+        </g>
+        <rect x="134.67" y="80.182" width="17.384" height="13.644" stroke="#625862" stroke-width="1.1234" gorn="0.1.0.0.0.18.0.0.0.0"/>
+        <g fill="#aca793" stroke-width="5.617">
+            <ellipse cx="132.28" cy="83.457" rx="1.4328" ry="2.0466" gorn="0.1.0.0.0.18.0.0.0.1"/>
+            <ellipse cx="132.38" cy="89.733" rx="1.4328" ry="2.0466" gorn="0.1.0.0.0.18.0.0.0.2"/>
+            <ellipse cx="154.38" cy="83.943" rx="1.4328" ry="2.0466" gorn="0.1.0.0.0.18.0.0.0.3"/>
+            <ellipse cx="154.43" cy="89.733" rx="1.4328" ry="2.0466" gorn="0.1.0.0.0.18.0.0.0.4"/>
+        </g>
+        <g fill="none" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.1234">
+            <path d="m132.33 83.465 1.8293 0.05941" gorn="0.1.0.0.0.18.0.0.0.5"/>
+            <path d="m132.37 89.85 1.8293 0.05941" gorn="0.1.0.0.0.18.0.0.0.6"/>
+            <path d="m152.6 89.76 1.8293 0.05941" gorn="0.1.0.0.0.18.0.0.0.7"/>
+            <path d="m152.52 83.851 1.8293 0.05941" gorn="0.1.0.0.0.18.0.0.0.8"/>
+        </g>
+        <g stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="149.82" y="106.94" width="5.0591" height="8.6636" fill="#b19a00" stroke-width=".95662" gorn="0.1.0.0.0.22"/>
+            <rect x="141.11" y="106.66" width="5.0591" height="8.6636" stroke-width=".95662" gorn="0.1.0.0.0.26.0.0.0.0"/>
+            <path d="m142.74 107.88 1.8293 0.0493" fill="none" fill-rule="evenodd" stroke-width="1.0235" gorn="0.1.0.0.0.26.0.0.0.1"/>
+            <path d="m142.74 114.06 1.8293 0.0493" fill="none" fill-rule="evenodd" stroke-width="1.0235" gorn="0.1.0.0.0.26.0.0.0.2"/>
+        </g>
+        <rect x="118.27" y="109.64" width="5.2987" height="6.0461" stroke="#2c2c2a" stroke-linecap="round" stroke-linejoin="round" stroke-width=".88658" gorn="0.1.0.0.0.27.0.0.0.0"/>
+        <g fill="none" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m117.45 112.63 1.119 0.0767" stroke-width=".99834" gorn="0.1.0.0.0.27.0.0.0.1"/>
+            <path d="m122.99 111.28 1.2082 0.0717" stroke-width="1.0031" gorn="0.1.0.0.0.27.0.0.0.2"/>
+            <path d="m123.06 114.05 1.152 0.0748" stroke-width="1.0002" gorn="0.1.0.0.0.27.0.0.0.3"/>
+        </g>
+        <g stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="132.72" y="106.77" width="5.0591" height="8.6636" stroke-width=".95662" gorn="0.1.0.0.0.28.0.0.0.0"/>
+            <g stroke-width="1.0235">
+                <path d="m134.35 107.95 1.8293 0.0493" fill="none" fill-rule="evenodd" gorn="0.1.0.0.0.28.0.0.0.1"/>
+                <path d="m134.35 114.25 1.8293 0.0493" fill="none" fill-rule="evenodd" gorn="0.1.0.0.0.28.0.0.0.2"/>
+                <rect x="117.59" y="78.938" width="7.8162" height="15.773" gorn="0.1.0.0.0.41.0.0.0.0.0.0.0.0"/>
+            </g>
+        </g>
+        <g fill="none">
+            <rect x="120.25" y="84.898" width="2.3282" height="5.3235" stroke="#ed3266" stroke-width="2.5586" gorn="0.1.0.0.0.41.0.0.0.0.0.0.0.1"/>
+            <path d="m119.73 92.748 3.2652 0.01433v0" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7967" gorn="0.1.0.0.0.41.0.0.0.1"/>
+            <path d="m119.76 81.009 3.2652 0.01433v0" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7967" gorn="0.1.0.0.0.41.0.0.0.2"/>
+        </g>
+        <rect x="134.28" y="135.27" width="17.384" height="13.644" stroke="#625862" stroke-width="1.1234" gorn="0.1.0.0.0.18.0.0.0.0"/>
+        <g fill="#aca793" stroke-width="5.617">
+            <ellipse cx="131.9" cy="138.54" rx="1.4328" ry="2.0466" gorn="0.1.0.0.0.18.0.0.0.1"/>
+            <ellipse cx="131.99" cy="144.82" rx="1.4328" ry="2.0466" gorn="0.1.0.0.0.18.0.0.0.2"/>
+            <ellipse cx="154" cy="139.03" rx="1.4328" ry="2.0466" gorn="0.1.0.0.0.18.0.0.0.3"/>
+            <ellipse cx="154.04" cy="144.82" rx="1.4328" ry="2.0466" gorn="0.1.0.0.0.18.0.0.0.4"/>
+        </g>
+        <g fill="none" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.1234">
+            <path d="m131.95 138.55 1.8293 0.0594" gorn="0.1.0.0.0.18.0.0.0.5"/>
+            <path d="m131.99 144.93 1.8293 0.0594" gorn="0.1.0.0.0.18.0.0.0.6"/>
+            <path d="m152.21 144.84 1.8293 0.0594" gorn="0.1.0.0.0.18.0.0.0.7"/>
+            <path d="m152.13 138.94 1.8293 0.0594" gorn="0.1.0.0.0.18.0.0.0.8"/>
+        </g>
+        <g stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="149.44" y="162.03" width="5.0591" height="8.6636" fill="#b19a00" stroke-width=".95662" gorn="0.1.0.0.0.22"/>
+            <rect x="140.73" y="161.74" width="5.0591" height="8.6636" stroke-width=".95662" gorn="0.1.0.0.0.26.0.0.0.0"/>
+            <path d="m142.35 162.97 1.8293 0.0493" fill="none" fill-rule="evenodd" stroke-width="1.0235" gorn="0.1.0.0.0.26.0.0.0.1"/>
+            <path d="m142.35 169.14 1.8293 0.0493" fill="none" fill-rule="evenodd" stroke-width="1.0235" gorn="0.1.0.0.0.26.0.0.0.2"/>
+        </g>
+        <rect x="117.89" y="164.72" width="5.2987" height="6.0461" stroke="#2c2c2a" stroke-linecap="round" stroke-linejoin="round" stroke-width=".88658" gorn="0.1.0.0.0.27.0.0.0.0"/>
+        <g fill="none" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m117.07 167.72 1.119 0.0767" stroke-width=".99834" gorn="0.1.0.0.0.27.0.0.0.1"/>
+            <path d="m122.6 166.37 1.2082 0.0717" stroke-width="1.0031" gorn="0.1.0.0.0.27.0.0.0.2"/>
+            <path d="m122.67 169.13 1.152 0.0748" stroke-width="1.0002" gorn="0.1.0.0.0.27.0.0.0.3"/>
+        </g>
+        <g stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="132.34" y="161.86" width="5.0591" height="8.6636" stroke-width=".95662" gorn="0.1.0.0.0.28.0.0.0.0"/>
+            <g stroke-width="1.0235">
+                <path d="m133.96 163.03 1.8293 0.0493" fill="none" fill-rule="evenodd" gorn="0.1.0.0.0.28.0.0.0.1"/>
+                <path d="m133.96 169.34 1.8293 0.0493" fill="none" fill-rule="evenodd" gorn="0.1.0.0.0.28.0.0.0.2"/>
+                <rect x="117.2" y="134.02" width="7.8162" height="15.773" gorn="0.1.0.0.0.41.0.0.0.0.0.0.0.0"/>
+            </g>
+        </g>
+        <g fill="none">
+            <rect x="119.86" y="139.98" width="2.3282" height="5.3235" stroke="#ed3266" stroke-width="2.5586" gorn="0.1.0.0.0.41.0.0.0.0.0.0.0.1"/>
+            <path d="m119.35 147.83 3.2652 0.0143v0" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7967" gorn="0.1.0.0.0.41.0.0.0.1"/>
+            <path d="m119.37 136.09 3.2652 0.0143v0" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7967" gorn="0.1.0.0.0.41.0.0.0.2"/>
+        </g>
+        <rect x="134.21" y="190.97" width="17.384" height="13.644" stroke="#625862" stroke-width="1.1234" gorn="0.1.0.0.0.18.0.0.0.0"/>
+        <g fill="#aca793" stroke-width="5.617">
+            <ellipse cx="131.82" cy="194.24" rx="1.4328" ry="2.0466" gorn="0.1.0.0.0.18.0.0.0.1"/>
+            <ellipse cx="131.91" cy="200.52" rx="1.4328" ry="2.0466" gorn="0.1.0.0.0.18.0.0.0.2"/>
+            <ellipse cx="153.92" cy="194.73" rx="1.4328" ry="2.0466" gorn="0.1.0.0.0.18.0.0.0.3"/>
+            <ellipse cx="153.96" cy="200.52" rx="1.4328" ry="2.0466" gorn="0.1.0.0.0.18.0.0.0.4"/>
+        </g>
+        <g fill="none" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.1234">
+            <path d="m131.87 194.25 1.8293 0.0594" gorn="0.1.0.0.0.18.0.0.0.5"/>
+            <path d="m131.91 200.64 1.8293 0.0594" gorn="0.1.0.0.0.18.0.0.0.6"/>
+            <path d="m152.14 200.55 1.8293 0.0594" gorn="0.1.0.0.0.18.0.0.0.7"/>
+            <path d="m152.05 194.64 1.8293 0.0594" gorn="0.1.0.0.0.18.0.0.0.8"/>
+        </g>
+        <g stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="149.36" y="217.73" width="5.0591" height="8.6636" fill="#b19a00" stroke-width=".95662" gorn="0.1.0.0.0.22"/>
+            <rect x="140.65" y="217.44" width="5.0591" height="8.6636" stroke-width=".95662" gorn="0.1.0.0.0.26.0.0.0.0"/>
+            <path d="m142.27 218.67 1.8293 0.0493" fill="none" fill-rule="evenodd" stroke-width="1.0235" gorn="0.1.0.0.0.26.0.0.0.1"/>
+            <path d="m142.27 224.85 1.8293 0.0493" fill="none" fill-rule="evenodd" stroke-width="1.0235" gorn="0.1.0.0.0.26.0.0.0.2"/>
+        </g>
+        <rect x="117.81" y="220.42" width="5.2987" height="6.0461" stroke="#2c2c2a" stroke-linecap="round" stroke-linejoin="round" stroke-width=".88658" gorn="0.1.0.0.0.27.0.0.0.0"/>
+        <g fill="none" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m116.99 223.42 1.119 0.0767" stroke-width=".99834" gorn="0.1.0.0.0.27.0.0.0.1"/>
+            <path d="m122.53 222.07 1.2082 0.0717" stroke-width="1.0031" gorn="0.1.0.0.0.27.0.0.0.2"/>
+            <path d="m122.6 224.83 1.152 0.0748" stroke-width="1.0002" gorn="0.1.0.0.0.27.0.0.0.3"/>
+        </g>
+        <g stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="132.26" y="217.56" width="5.0591" height="8.6636" stroke-width=".95662" gorn="0.1.0.0.0.28.0.0.0.0"/>
+            <g stroke-width="1.0235">
+                <path d="m133.89 218.74 1.8293 0.0493" fill="none" fill-rule="evenodd" gorn="0.1.0.0.0.28.0.0.0.1"/>
+                <path d="m133.89 225.04 1.8293 0.0493" fill="none" fill-rule="evenodd" gorn="0.1.0.0.0.28.0.0.0.2"/>
+                <rect x="117.13" y="189.73" width="7.8162" height="15.773" gorn="0.1.0.0.0.41.0.0.0.0.0.0.0.0"/>
+            </g>
+        </g>
+        <g fill="none">
+            <rect x="119.79" y="195.69" width="2.3282" height="5.3235" stroke="#ed3266" stroke-width="2.5586" gorn="0.1.0.0.0.41.0.0.0.0.0.0.0.1"/>
+            <path d="m119.27 203.54 3.2652 0.0143v0" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7967" gorn="0.1.0.0.0.41.0.0.0.1"/>
+            <path d="m119.29 191.8 3.2652 0.0143v0" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7967" gorn="0.1.0.0.0.41.0.0.0.2"/>
+        </g>
+        <rect x="134.13" y="245.74" width="17.384" height="13.644" stroke="#625862" stroke-width="1.1234" gorn="0.1.0.0.0.18.0.0.0.0"/>
+        <g fill="#aca793" stroke-width="5.617">
+            <ellipse cx="131.74" cy="249.02" rx="1.4328" ry="2.0466" gorn="0.1.0.0.0.18.0.0.0.1"/>
+            <ellipse cx="131.84" cy="255.3" rx="1.4328" ry="2.0466" gorn="0.1.0.0.0.18.0.0.0.2"/>
+            <ellipse cx="153.84" cy="249.51" rx="1.4328" ry="2.0466" gorn="0.1.0.0.0.18.0.0.0.3"/>
+            <ellipse cx="153.88" cy="255.3" rx="1.4328" ry="2.0466" gorn="0.1.0.0.0.18.0.0.0.4"/>
+        </g>
+        <g fill="none" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.1234">
+            <path d="m131.79 249.03 1.8293 0.0594" gorn="0.1.0.0.0.18.0.0.0.5"/>
+            <path d="m131.83 255.41 1.8293 0.0594" gorn="0.1.0.0.0.18.0.0.0.6"/>
+            <path d="m152.06 255.32 1.8293 0.0594" gorn="0.1.0.0.0.18.0.0.0.7"/>
+            <path d="m151.98 249.41 1.8293 0.0594" gorn="0.1.0.0.0.18.0.0.0.8"/>
+        </g>
+        <g stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="149.28" y="272.5" width="5.0591" height="8.6636" fill="#b19a00" stroke-width=".95662" gorn="0.1.0.0.0.22"/>
+            <rect x="140.57" y="272.22" width="5.0591" height="8.6636" stroke-width=".95662" gorn="0.1.0.0.0.26.0.0.0.0"/>
+            <path d="m142.2 273.45 1.8293 0.0493" fill="none" fill-rule="evenodd" stroke-width="1.0235" gorn="0.1.0.0.0.26.0.0.0.1"/>
+            <path d="m142.2 279.62 1.8293 0.0493" fill="none" fill-rule="evenodd" stroke-width="1.0235" gorn="0.1.0.0.0.26.0.0.0.2"/>
+        </g>
+        <rect x="117.73" y="275.2" width="5.2987" height="6.0461" stroke="#2c2c2a" stroke-linecap="round" stroke-linejoin="round" stroke-width=".88658" gorn="0.1.0.0.0.27.0.0.0.0"/>
+        <g fill="none" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m116.91 278.19 1.119 0.0767" stroke-width=".99834" gorn="0.1.0.0.0.27.0.0.0.1"/>
+            <path d="m122.45 276.84 1.2082 0.0717" stroke-width="1.0031" gorn="0.1.0.0.0.27.0.0.0.2"/>
+            <path d="m122.52 279.61 1.152 0.0748" stroke-width="1.0002" gorn="0.1.0.0.0.27.0.0.0.3"/>
+        </g>
+        <g stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="132.18" y="272.34" width="5.0591" height="8.6636" stroke-width=".95662" gorn="0.1.0.0.0.28.0.0.0.0"/>
+            <g stroke-width="1.0235">
+                <path d="m133.81 273.51 1.8293 0.0493" fill="none" fill-rule="evenodd" gorn="0.1.0.0.0.28.0.0.0.1"/>
+                <path d="m133.81 279.82 1.8293 0.0493" fill="none" fill-rule="evenodd" gorn="0.1.0.0.0.28.0.0.0.2"/>
+                <rect x="117.05" y="244.5" width="7.8162" height="15.773" gorn="0.1.0.0.0.41.0.0.0.0.0.0.0.0"/>
+            </g>
+        </g>
+        <g fill="none">
+            <rect x="119.71" y="250.46" width="2.3282" height="5.3235" stroke="#ed3266" stroke-width="2.5586" gorn="0.1.0.0.0.41.0.0.0.0.0.0.0.1"/>
+            <path d="m119.19 258.31 3.2652 0.0143v0" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7967" gorn="0.1.0.0.0.41.0.0.0.1"/>
+            <path d="m119.22 246.57 3.2652 0.0143v0" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7967" gorn="0.1.0.0.0.41.0.0.0.2"/>
+        </g>
+        <rect x="133.94" y="-140.23" width="17.384" height="13.644" stroke="#625862" stroke-width="1.1234" gorn="0.1.0.0.0.18.0.0.0.0"/>
+        <g fill="#aca793" stroke-width="5.617">
+            <ellipse cx="131.56" cy="-136.95" rx="1.4328" ry="2.0466" gorn="0.1.0.0.0.18.0.0.0.1"/>
+            <ellipse cx="131.65" cy="-130.68" rx="1.4328" ry="2.0466" gorn="0.1.0.0.0.18.0.0.0.2"/>
+            <ellipse cx="153.66" cy="-136.47" rx="1.4328" ry="2.0466" gorn="0.1.0.0.0.18.0.0.0.3"/>
+            <ellipse cx="153.7" cy="-130.68" rx="1.4328" ry="2.0466" gorn="0.1.0.0.0.18.0.0.0.4"/>
+        </g>
+        <g fill="none" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.1234">
+            <path d="m131.61-136.94 1.8293 0.0594" gorn="0.1.0.0.0.18.0.0.0.5"/>
+            <path d="m131.65-130.56 1.8293 0.0594" gorn="0.1.0.0.0.18.0.0.0.6"/>
+            <path d="m151.88-130.65 1.8293 0.0594" gorn="0.1.0.0.0.18.0.0.0.7"/>
+            <path d="m151.79-136.56 1.8293 0.0594" gorn="0.1.0.0.0.18.0.0.0.8"/>
+        </g>
+        <g stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="149.1" y="-113.47" width="5.0591" height="8.6636" fill="#b19a00" stroke-width=".95662" gorn="0.1.0.0.0.22"/>
+            <rect x="140.39" y="-113.75" width="5.0591" height="8.6636" stroke-width=".95662" gorn="0.1.0.0.0.26.0.0.0.0"/>
+            <path d="m142.01-112.53 1.8293 0.0493" fill="none" fill-rule="evenodd" stroke-width="1.0235" gorn="0.1.0.0.0.26.0.0.0.1"/>
+            <path d="m142.01-106.35 1.8293 0.0493" fill="none" fill-rule="evenodd" stroke-width="1.0235" gorn="0.1.0.0.0.26.0.0.0.2"/>
+        </g>
+        <rect x="117.55" y="-110.77" width="5.2987" height="6.0461" stroke="#2c2c2a" stroke-linecap="round" stroke-linejoin="round" stroke-width=".88658" gorn="0.1.0.0.0.27.0.0.0.0"/>
+        <g fill="none" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m116.73-107.78 1.119 0.0767" stroke-width=".99834" gorn="0.1.0.0.0.27.0.0.0.1"/>
+            <path d="m122.27-109.13 1.2082 0.0717" stroke-width="1.0031" gorn="0.1.0.0.0.27.0.0.0.2"/>
+            <path d="m122.33-106.36 1.152 0.0748" stroke-width="1.0002" gorn="0.1.0.0.0.27.0.0.0.3"/>
+        </g>
+        <g stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="132" y="-113.64" width="5.0591" height="8.6636" stroke-width=".95662" gorn="0.1.0.0.0.28.0.0.0.0"/>
+            <g stroke-width="1.0235">
+                <path d="m133.63-112.46 1.8293 0.0493" fill="none" fill-rule="evenodd" gorn="0.1.0.0.0.28.0.0.0.1"/>
+                <path d="m133.63-106.16 1.8293 0.0493" fill="none" fill-rule="evenodd" gorn="0.1.0.0.0.28.0.0.0.2"/>
+                <rect x="116.87" y="-141.47" width="7.8162" height="15.773" gorn="0.1.0.0.0.41.0.0.0.0.0.0.0.0"/>
+            </g>
+        </g>
+        <g fill="none">
+            <rect x="119.53" y="-135.51" width="2.3282" height="5.3235" stroke="#ed3266" stroke-width="2.5586" gorn="0.1.0.0.0.41.0.0.0.0.0.0.0.1"/>
+            <path d="m119.01-127.66 3.2652 0.0143v0" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7967" gorn="0.1.0.0.0.41.0.0.0.1"/>
+            <path d="m119.03-139.4 3.2652 0.0143v0" fill-rule="evenodd" stroke="#ddd3d3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7967" gorn="0.1.0.0.0.41.0.0.0.2"/>
+        </g>
+        <ellipse transform="rotate(90)" cx="-120.74" cy="-169.92" rx="1.434" ry="1.4369" fill="#aca793" stroke-width="4.7085" gorn="0.1.0.0.0.21.0.0.0.3"/>
+    </g>
+</svg>

@@ -1,0 +1,46 @@
+#!/bin/sh
+
+cd "$(dirname "$0")"
+
+esp_path_hardware=~/Library/Arduino15/packages/esp32/hardware/esp32
+esp_path_littlefs=~/Library/Arduino15/packages/esp32/tools/mklittlefs
+
+for dir in $(find $esp_path_hardware -depth 1 -type d); do
+    esp_version="$(basename $dir)"
+    break
+done
+
+for dir in $(find $esp_path_littlefs -depth 1 -type d); do
+    gcc="$(basename $dir)"
+    break
+done
+
+if ! [ -f $(which python) ]; then
+    echo "...Issue with Python, Fix?"
+    sudo mkdir -p -m 775 /usr/local/bin
+    sudo ln -s -f $(which python3) /usr/local/bin/python
+fi
+
+#Copy Web Files
+rm -rf data
+cp -rf Web data
+rm -rf data/img
+rm -rf data/nvram.json
+mkdir data/img
+cp -rf Web/img/8-channel-relay.svg data/img
+cp -rf Web/img/esp32s2-mini.svg data/img
+cp -rf Web/img/eye-slash.svg data/img
+cp -rf Web/img/eye-slash-fill.svg data/img
+
+for f in $(find data -type f -name '*.*' ! -name 'plc*' ! -name '*.bin'); do
+    gzip "$f"
+    mv "$f.gz" "$f"
+done
+
+#Build LittleFS
+mkdir -p build
+
+#_start:            0x00210000 (2162688)
+#_size:             0x001F0000 (2031616)
+#$esp_path_littlefs/$gcc/mklittlefs -c ./data/ -b 4096 -p 256 -d 5 -s 283648 ./build/flash-littlefs.bin
+$esp_path_littlefs/$gcc/mklittlefs -c ./data/ -b 4096 -p 256 -d 5 -s 786432 ./build/flash-littlefs.bin
