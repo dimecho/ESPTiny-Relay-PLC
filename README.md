@@ -2,13 +2,9 @@
 
 # ESPTiny Relay (WiFi Edition)
 
-Automatic 8-channel relay control PLC style.
+Automatic 8-channel relay control - PLC style.
 
-```
-response->addHeader("Content-Encoding", "gzip");
-```
-
-- WiFi (Web Interface) :electric_plug: [View Demo](https://dimecho.github.io/ESPTiny-Relay/Web/index.html)
+- WiFi (Web Interface) :electric_plug: [View Demo](https://dimecho.github.io/ESPTiny-Relay-PLC/Web/index.html)
 - Battery Deep Sleep (~10μA)
 - Modular PCB (ESP32, DS1307, TP4056)
 
