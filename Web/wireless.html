@@ -72,17 +72,6 @@
                 if(DEMOLOCK) {
                     RelayLogin();
                 }else{
-                    if(document.getElementById('EnableLogCheckbox').checked === true) {
-                        var loginterval = document.getElementById('EnableLogInterval').value;
-                        var deepsleep = document.getElementById('power-text').textContent;
-
-                        //console.log(loginterval  + ' < ' + deepsleep);
-                        if(loginterval < (deepsleep * 60)) {
-                            saveSetting(DEEP_SLEEP, 1); //in minutes
-                            notify('','Deep Sleep is longer than Log Interval', 'danger');
-                            notify('', 'Wireless Always On', 'success');
-                        }
-                    }
                     document.getElementById('wireless-SettingsForm').submit();
                 }
             }
@@ -299,7 +288,6 @@
                                 <label for="EnableLogCheckbox" class="ml-2">Enable Log</label>
                             </div>
                         </fieldset>
-                        <input type="hidden" id="EnableLogInterval" name="LogInterval" value="1">
                     </div>
                     <div class="mb-4">
                         <fieldset class="mb-4">

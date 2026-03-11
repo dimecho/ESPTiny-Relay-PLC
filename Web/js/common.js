@@ -13,30 +13,27 @@ var WIFI_SSID = 6;
 var WIFI_USERNAME = 7;
 var WIFI_PASSWORD = 8;
 var LOG_ENABLE = 9;
-//var RESERVED 10
 //==========
-var NETWORK_DHCP = 11
-var NETWORK_IP = 12;
-var NETWORK_SUBNET = 13;
-var NETWORK_GATEWAY = 14;
-var NETWORK_DNS = 15;
+var NETWORK_DHCP = 10
+var NETWORK_IP = 11;
+var NETWORK_SUBNET = 12;
+var NETWORK_GATEWAY = 13;
+var NETWORK_DNS = 14;
 //==========
-//var RESERVED 16
-//var RESERVED 17
-//var RESERVED 18
-//var RESERVED 19
-//var RESERVED 20
-var DEEP_SLEEP = 21;
+//var RESERVED = 15;
+//var RESERVED = 16;
+//var RESERVED = 17;
+var GPIO_ARRAY = 18;
+var DEEP_SLEEP = 19;
 //==========
-var EMAIL_ALERT = 22;
-var SMTP_SERVER = 23;
-var SMTP_USERNAME = 24;
-var SMTP_PASSWORD = 25;
-var RELAY_NAME = 26;
-var ALERTS = 27;
-var DEMO_PASSWORD = 28;
-var TIMEZONE_OFFSET = 29;
-//var RESERVED 30
+var EMAIL_ALERT = 20;
+var SMTP_SERVER = 21;
+var SMTP_USERNAME = 22;
+var SMTP_PASSWORD = 23;
+var RELAY_NAME = 24;
+var ALERTS = 25;
+var DEMO_PASSWORD = 26;
+var TIMEZONE_OFFSET = 27;
 var DEMOLOCK = false;
 //==========
 var redirectURL = location.protocol + '//' + location.host + '.nip.io' + location.pathname;
@@ -100,6 +97,15 @@ function saveSetting(offset, value, callback) {
 function RelayLogin() {
 	hideAllModals();
 	document.getElementById('demo-lock').classList.remove('hidden');
+}
+
+function hideAllModals() {
+    const backdrop = document.getElementById('modal-backdrop');
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        modal.classList.add('hidden');
+    });
+    backdrop.classList.add('hidden');
 }
 
 function RequireInput(id, value) {

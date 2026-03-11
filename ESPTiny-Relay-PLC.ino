@@ -49,10 +49,12 @@ static AsyncWebServer server(80);
 
 #if CONFIG_IDF_TARGET_ESP32S2
 #define ledPin 15
-static const uint8_t RelayPin[] = { 1, 2, 4, 6, 7, 10, 13, 14 };
+char GPIO_ARRAY[32] = "1,2,4,6,7,10,13,14";
+static uint8_t RelayPin[] = { 15, 15, 15, 15, 15, 15, 15, 15 };
 #else  //WROOM32
 #define ledPin 23
-static const uint8_t RelayPin[] = { 16, 16, 16, 16, 16, 16, 16, 16 };
+char GPIO_ARRAY[32] = "16,16,16,16,16,16,16,16";
+static uint8_t RelayPin[] = { 23, 23, 23, 23, 23, 23, 23, 23 };
 #endif
 
 #include <Ticker.h>
@@ -114,27 +116,24 @@ int rule_count = 0;
 #define _WIRELESS_USERNAME 7
 #define _WIRELESS_PASSWORD 8
 #define _LOG_ENABLE 9
-//#define _RESERVED 10
-#define _NETWORK_DHCP 11
-#define _NETWORK_IP 12
-#define _NETWORK_SUBNET 13
-#define _NETWORK_GATEWAY 14
-#define _NETWORK_DNS 15
+#define _NETWORK_DHCP 10
+#define _NETWORK_IP 11
+#define _NETWORK_SUBNET 12
+#define _NETWORK_GATEWAY 13
+#define _NETWORK_DNS 14
+//#define _RESERVED 15
 //#define _RESERVED 16
 //#define _RESERVED 17
-//#define _RESERVED 18
-//#define _RESERVED 19
-//#define _RESERVED 20
-#define _DEEP_SLEEP 21
-#define _EMAIL_ALERT 22
-#define _SMTP_SERVER 23
-#define _SMTP_USERNAME 24
-#define _SMTP_PASSWORD 25
-#define _RELAY_NAME 26
-#define _ALERTS 27
-#define _DEMO_PASSWORD 28
-#define _TIMEZONE_OFFSET 29
-//#define _RESERVED 30
+#define _GPIO_ARRAY 18
+#define _DEEP_SLEEP 19
+#define _EMAIL_ALERT 20
+#define _SMTP_SERVER 21
+#define _SMTP_USERNAME 22
+#define _SMTP_PASSWORD 23
+#define _RELAY_NAME 24
+#define _ALERTS 25
+#define _DEMO_PASSWORD 26
+#define _TIMEZONE_OFFSET 27
 
 const int NVRAM_Map[] = {
   0,    //_EEPROM_ID 16
@@ -143,11 +142,10 @@ const int NVRAM_Map[] = {
   32,   //_WIRELESS_PHY_MODE 8
   40,   //_WIRELESS_PHY_POWER 8
   48,   //_WIRELESS_CHANNEL 8
-  64,   //_WIRELESS_SSID 16
-  160,  //_WIRELESS_USERNAME 96
-  192,  //_WIRELESS_PASSWORD 32
-  200,  //_LOG_ENABLE 8
-  232,  //_RESERVED 32
+  56,   //_WIRELESS_SSID 32
+  88,  //_WIRELESS_USERNAME 96
+  184,  //_WIRELESS_PASSWORD 48
+  232,  //_LOG_ENABLE 8
   240,  //_NETWORK_DHCP 8
   304,  //_NETWORK_IP 64
   368,  //_NETWORK_SUBNET 64
@@ -155,13 +153,12 @@ const int NVRAM_Map[] = {
   496,  //_NETWORK_DNS 64
   512,  //_RESERVED 16
   528,  //_RESERVED 16
-  560,  //_RESERVED 32
-  576,  //_RESERVED 16
-  592,  //_RESERVED 16
+  560,  //_RESERVED 16
+  576,  //_GPIO_ARRAY 48
   624,  //_DEEP_SLEEP 32
-  688,  //_EMAIL_ALERT 64
-  752,  //_SMTP_SERVER 64
-  848,  //_SMTP_USERNAME 96
+  656,  //_EMAIL_ALERT 64
+  720,  //_SMTP_SERVER 64
+  784,  //_SMTP_USERNAME 96
   880,  //_SMTP_PASSWORD 32
   912,  //_RELAY_NAME 32
   928,  //_ALERTS 16
@@ -254,6 +251,7 @@ void setup() {
     NVRAMWrite(_WIRELESS_USERNAME, "");
     NVRAMWrite(_WIRELESS_PASSWORD, "");
     NVRAMWrite(_LOG_ENABLE, "0");
+    NVRAMWrite(_GPIO_ARRAY, GPIO_ARRAY);
     //==========
     NVRAMWrite(_NETWORK_DHCP, "0");
     NVRAMWrite(_NETWORK_IP, NETWORK_IP);
@@ -275,7 +273,9 @@ void setup() {
     //==========
     memset(&rtcData, 0, sizeof(rtcData));  //reset RTC memory
   } else {
-    NVRAMConfig();
+    loadRelayGPIO();
+    DEEP_SLEEP = atoi(NVRAMRead(_DEEP_SLEEP)) * 60;
+    LOG_ENABLE = atoi(NVRAMRead(_LOG_ENABLE));
     strncpy(ALERTS, NVRAMRead(_ALERTS), sizeof(ALERTS));
     strncpy(RELAY_NAME, NVRAMRead(_RELAY_NAME), sizeof(RELAY_NAME));
   }
@@ -619,10 +619,24 @@ void setupWebServer() {
             file = root.openNextFile();
           }
         }
+      } else if (request->hasParam("gpio")) {
+        if (request->hasParam("save")) {
+          const char* gpioParam = request->getParam("save")->value().c_str();
+          NVRAMWrite(_GPIO_ARRAY, gpioParam);
+          loadRelayGPIO();
+        }else{
+          uint8_t count = 8; //sizeof(RelayPin) / sizeof(RelayPin[0]);
+          for (uint8_t i = 0; i < count; i++) {
+            response->printf("%d", RelayPin[i]);
+            if (i < count - 1) {
+              response->printf(",");
+            }
+          }
+        }
       } else if (request->hasParam("plc")) {
         setupPLC();
         applyPLC();
-        for (int i = 0; i < rule_count; i++) {
+        for (uint8_t i = 0; i < rule_count; i++) {
           plc_rule_t *r = &rules[i];
           //response->printf("[%u] %d - %d\n",  r->relay, r->start_epoch, r->end_epoch);
           response->printf("[#%u] %02d:%02d - %02d:%02d %s -> %s\n", r->relay, atoi(r->start_hour), atoi(r->start_minute), atoi(r->end_hour), atoi(r->end_minute), r->action, timePLC(r) ? "TRUE" : "FALSE");
@@ -714,7 +728,6 @@ void setupWebServer() {
           }
           */
           NVRAMWrite(i, request->getParam("value")->value().c_str());
-          NVRAMConfig();
         }
         request->send(200, FPSTR(text_plain), request->getParam("value")->value());
       } else {
@@ -734,8 +747,8 @@ void setupWebServer() {
       Serial.printf("Flash free: %6d bytes\r\n", ESP.getFreeSketchSpace());
       Serial.printf("DRAM free: %6d bytes\r\n", ESP.getFreeHeap());
 #endif
-      for (uint8_t i = 1; i <= 31; i++) {
-        if (i == 8 || i == 25 || i == 28) {
+      for (uint8_t i = 1; i <= 27; i++) {
+        if (i == _WIRELESS_PASSWORD || i == _SMTP_PASSWORD || i == _DEMO_PASSWORD) {
           if (strlen(DEMO_PASSWORD) == 0) {
             response->print(F(",\"\""));
           } else {
@@ -769,7 +782,7 @@ void setupWebServer() {
 
       char buf[64];
       size_t len = 0;
-      uint8_t n = 1, skip = 32;
+      uint8_t n = 1, skip = 28;
 
       len = snprintf(buf, sizeof(buf), "6;url=/");
       if (param0->name() == "wifi") {
@@ -777,7 +790,7 @@ void setupWebServer() {
         const AsyncWebParameter *dhcpParam = request->getParam("DHCP", true);
         if (modeParam->value() == "0") {
           bthread.detach();
-          bthread.attach(2, []() {
+          bthread.attach(4, []() {
             ESP.restart();
           });
         } else if (dhcpParam->value() == "1") {
@@ -790,10 +803,10 @@ void setupWebServer() {
           }
         }
       } else if (param0->name() == "alert") {
-        n = 22;
-        skip = 5;
+        n = _EMAIL_ALERT;
+        skip = (_EMAIL_ALERT - _SMTP_PASSWORD) + 1; //skip oauth token
       } else if (param0->name() == "demo") {
-        n = 28;
+        n = _DEMO_PASSWORD;
       }
       response->addHeader(FPSTR(refresh_http), buf);
 
@@ -1143,12 +1156,6 @@ char *NVRAMRead(uint8_t address) {
   return buffer;
 }
 
-void NVRAMConfig() {
-
-  DEEP_SLEEP = atoi(NVRAMRead(_DEEP_SLEEP)) * 60;
-  LOG_ENABLE = atoi(NVRAMRead(_LOG_ENABLE));
-}
-
 String getContentType(String filename) {
   if (filename.endsWith("ml"))
     return FPSTR(text_html);
@@ -1240,8 +1247,6 @@ void smtpSend(const char *subject, const char *body, uint8_t now) {
   Serial.printf("Unix time: %u\n", timeClient.getEpochTime());
 #endif
 #if TIMECLIENT_NTP
-  //timestamp (seconds since Jan 1, 1970)
-  //smtp.setSystemTime(timeClient.getEpochTime());
   time_t now;
   time(&now);
   smtp.setSystemTime(now);
@@ -1533,6 +1538,19 @@ uint32_t calculateDurationSeconds(const char *start_h, const char *start_m, cons
   }
 
   return end_sec - start_sec;
+}
+
+void loadRelayGPIO() {
+  strncpy(GPIO_ARRAY, NVRAMRead(_GPIO_ARRAY), sizeof(GPIO_ARRAY));
+
+  char buf[32] = {0};  // buffer to copy the string
+  strncpy(buf, GPIO_ARRAY, sizeof(buf) - 1);  // ensure null-terminated
+  int count = 0;
+  char* token = strtok(buf, ",");
+  while (token != NULL && count < 8) {
+    RelayPin[count++] = atoi(token);  // convert to integer
+    token = strtok(NULL, ",");
+  }
 }
 
 bool timePLC(plc_rule_t *r) {

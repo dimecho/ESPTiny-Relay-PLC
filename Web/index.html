@@ -20,6 +20,16 @@
 						var ntp = new XMLHttpRequest();
 						ntp.open('GET', 'api?&ntp=1&tz=' + getPOSIXtz() + '&epoch=' + epoch, true);
 						ntp.send();
+						var gpio = new XMLHttpRequest();
+						gpio.open('GET', 'api?gpio=1', true);
+					    gpio.send();
+					    gpio.onload = function() {
+					        if (gpio.status == 200) {
+					        	if(gpio.responseText != 'Locked') {
+									document.getElementById("gpio-array").value = gpio.responseText;
+							    }
+					        }
+					    };
 				    } else {
 				        notify('', 'Failed to load PLC', 'danger');
 				    }
@@ -28,7 +38,6 @@
 				    notify('', 'Request error', 'danger');
 				};
         	});
-
         	function runPLC()
 			{
 				var xhr = new XMLHttpRequest();
@@ -66,7 +75,6 @@
 				    notify('', 'Request error', 'danger');
 				};
 			}
-
 			function testRelayVisual(obj, n, action)
 			{
         		if(action == 1){
@@ -91,16 +99,14 @@
                     obj.textContent = 'Test #' + n;
         		}
 			}
-
         	function testRelay(obj, n)
 			{
 				action = 1;
 				if(obj.textContent == 'Stop #' + n) {
 					action = 0;
 				}
-
 				var xhr = new XMLHttpRequest();
-				xhr.open('GET', 'api?relay=' + action + '&n=' + (n - 1) , true);
+				xhr.open('GET', 'api?relay=' + action + '&n=' + (n - 1), true);
 			    xhr.send();
 			    xhr.onload = function() {
 			        if (xhr.status == 200) {
@@ -119,10 +125,26 @@
 			        }
 			    };
 			}
+			function saveGPIO()
+			{
+				var value = document.getElementById("gpio-array").value;
+				var gpio = new XMLHttpRequest();
+				gpio.open('GET', 'api?gpio=1&save=' + value.replace(' ',''), true);
+			    gpio.send();
+			    gpio.onload = function() {
+			        if (gpio.status == 200) {
+			        	if(gpio.responseText == 'Locked') {
+			        		RelayLogin();
+			        	}else {
+			        		notify('', 'GPIO Saved', 'success');
+					    }
+			        }
+			    };
+			}
 			function getPOSIXtz() {
-			  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-			  const offset = new Date().getTimezoneOffset() / 60;
-			  return "UTC" + offset;
+			 	const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+			 	const offset = new Date().getTimezoneOffset() / 60;
+			 	return "UTC" + offset;
 			}
         </script>
     </head>
@@ -146,6 +168,19 @@
 	  			<img src="img/esp32s2-mini.svg">
 	  			</div>
 	  		</div>
+	  		<div class="bg-gray-100 dark:bg-gray-500 border border-gray-800 dark:border-white rounded-lg p-4">
+			  	<div class="flex flex-row gap-4 w-full text-lg font-semibold text-gray-800 dark:text-white">
+				    <div class="w-1/4 flex items-center">
+				      <span>GPIO Array:</span>
+				    </div>
+				    <div class="w-2/4">
+						<input type="text" id="gpio-array" class="border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring focus:ring-blue-200 w-full" placeholder="1,2,4,6,7,10,13,14">
+				    </div>
+				    <div class="w-1/4">
+				      	<button onclick="saveGPIO()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-6 rounded transition-colors duration-200">Save GPIO</button>
+				    </div>
+			  	</div>
+			</div>
 	  		<div class="bg-gray-100 dark:bg-gray-500 border border-gray-800 dark:border-white rounded-lg p-4">
 			    <div class="flex flex-row lg:flex-col sm:flex-row gap-4 w-full text-lg font-semibold text-gray-800 dark:text-white">
 				    <div class="grid grid-cols-1 lg:grid-cols-8 gap-2 flex-1">
@@ -176,7 +211,6 @@
 			<div class="bg-gray-100 dark:bg-gray-500 border border-gray-800 dark:border-white rounded-lg p-4 text-sm text-gray-800 dark:text-white overflow-auto">
 			    	<pre>
 ; PLC Schedule format
-; Each line = one rule
 ; Syntax: <Relay> : <Month> : <MonthDay> : <Weekday> : <Time> : <Action> : <Type>
 
 ; Relay number: 1-8
@@ -184,7 +218,7 @@
 ; MonthDay: 1-31 or * for every day
 ; Weekday: MON,TUE,WED,THU,FRI,SAT,SUN or * for every day
 ; Time: HH:MM-HH:MM (24h)
-; Action: ON / OFF / PULSE<n> (n = seconds)
+; Action: ON / OFF
 ; Type: PNP or NPN
 
 ; Examples:

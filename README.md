@@ -14,6 +14,28 @@ Automatic 8-channel relay control - PLC style.
 
 </p>
 
+```
+; PLC Schedule format
+; Syntax: <Relay> : <Month> : <MonthDay> : <Weekday> : <Time> : <Action> : <Type>
+
+; Relay number: 1-8
+; Month: 1-12 or * for every month
+; MonthDay: 1-31 or * for every day
+; Weekday: MON,TUE,WED,THU,FRI,SAT,SUN or * for every day
+; Time: HH:MM-HH:MM (24h)
+; Action: ON / OFF
+; Type: PNP or NPN
+
+; Examples:
+
+Relay1 : *     : *       : MON-FRI : 08:00-12:00 : ON      : PNP
+Relay2 : *     : *       : SAT-SUN : 12:00-13:00 : OFF     : PNP
+Relay4 : 1,2,3 : *       : *       : 09:00-17:00 : ON      : PNP
+Relay5 : *     : 1,15,30 : *       : 18:00-20:00 : OFF     : PNP
+Relay6 : *     : *       : *       : 00:00-23:59 : OFF     : PNP
+Relay7 : 6     : 10-20   : WED     : 06:00-08:00 : ON      : PNP
+```
+
 ## Download
 
 [Firmware](../../releases/download/latest/ESPTiny-Relay-Firmware.zip)
