@@ -33,12 +33,12 @@
                             listremovebutton.textContent = 'Remove';
                             listremovebutton.addEventListener('click', function() {
                                 var a = new XMLHttpRequest();
-                                a.open('GET', 'api?&addons=1&remove=' + item.id, true);
+                                a.open('GET', 'api?&addons=1&remove=' + this.id, true);
                                 a.onload = function(e) {
                                     if(a.response == 'OK') {
                                         location.reload();
                                     }else{
-                                        notify('', 'Error ' + item.id, 'danger');
+                                        notify('', 'Error ' + this.id, 'danger');
                                     }
                                 }
                                 a.send();
@@ -72,12 +72,12 @@
                             listrunbutton.textContent = 'Run';
                             listrunbutton.addEventListener('click', function() {
                                 var a = new XMLHttpRequest();
-                                a.open('GET', 'api?&addons=1&run=' + item.id, true);
+                                a.open('GET', 'api?&addons=1&run=' + this.id, true);
                                 a.onload = function(e) {
                                     if(a.response == 'OK') {
-                                        notify('', item.id + ' Executed', 'success');
+                                        notify('', this.id + ' Executed', 'success');
                                     }else{
-                                        notify('', 'Error ' + item.id, 'danger');
+                                        notify('', 'Error ' + this.id, 'danger');
                                     }
                                 }
                                 a.send();

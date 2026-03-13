@@ -32,7 +32,6 @@ DS1307 rtc;
 #endif
 
 #if ADDONS
-#include <vector>
 typedef void (*addon_func_t)(void);
 #endif
 
@@ -83,8 +82,8 @@ RTC_DATA_ATTR struct {
   time_t runTime;      //lastEpoch
   uint16_t alertTime;  //prevent email spam
 } rtcData;
-unsigned long webTimer = 0;  //track last webpage access
-unsigned long delayBetweenWiFi = 1000UL;
+unsigned long webTimer = 0;                        //track last webpage access
+unsigned long delayBetweenWiFi = 8 * 60 * 1000UL;  // 8 minutes
 
 #define MAX_RULES 16
 
@@ -143,7 +142,7 @@ const int NVRAM_Map[] = {
   40,   //_WIRELESS_PHY_POWER 8
   48,   //_WIRELESS_CHANNEL 8
   56,   //_WIRELESS_SSID 32
-  88,  //_WIRELESS_USERNAME 96
+  88,   //_WIRELESS_USERNAME 96
   184,  //_WIRELESS_PASSWORD 48
   232,  //_LOG_ENABLE 8
   240,  //_NETWORK_DHCP 8
@@ -323,9 +322,15 @@ void setup() {
     for (int i = 0; i < sizeof(RelayPin); i++) {
       pinMode(RelayPin[i], INPUT_PULLUP);  //Float the pin until set NPN or PNP
     }
+#if ADDONS
+    // Crash detected - clear addons
+    if (wakeupReason == ESP_RST_PANIC || wakeupReason == ESP_RST_TASK_WDT || wakeupReason == ESP_RST_INT_WDT || wakeupReason == ESP_RST_BROWNOUT) {
+      searchAddons(true);
+    }
+    searchAddons(false);
+#endif
     //Emergency Recover (RST to GND)
-    if (wakeupReason == ESP_RST_EXT) {  //ESP_RST_EXT (2) ESP_RST_SW (3)
-      DEEP_SLEEP = 300;
+    if (wakeupReason == ESP_RST_EXT) {       //ESP_RST_EXT (2) ESP_RST_SW (3)
       ALERTS[0] = '1';                       //email DHCP IP
       ALERTS[1] = '0';                       //low voltage
       memset(&rtcData, 0, sizeof(rtcData));  //reset RTC memory (set all zero)
@@ -334,9 +339,6 @@ void setup() {
       //ArduinoOTA.begin();
     } else {
       setupWiFi(0);
-#if ADDONS
-      applyAddons();
-#endif
     }
     setupWebServer();
   }
@@ -361,8 +363,7 @@ void setSystemTime(time_t epoch) {
 //This is a power expensive function 80+mA
 void setupWiFi(uint8_t timeout) {
 
-  delayBetweenWiFi = 8 * 60 * 1000UL;  // 8 minutes
-  blinky(200, 3);                      //Alive blink
+  blinky(200, 3);  //Alive blink
 
   WIRELESS_MODE = atoi(NVRAMRead(_WIRELESS_MODE));
   WIRELESS_CHANNEL = atoi(NVRAMRead(_WIRELESS_CHANNEL));
@@ -603,13 +604,18 @@ void setupWebServer() {
           response->print(F("No SMTP"));
 #endif
       } else if (request->hasParam("addons")) {
+        String filepath = "/addons/";
         if (request->hasParam("run")) {
-          uint8_t n = atoi(request->getParam("run")->value().c_str());
-          response->println("OK");
+          filepath += request->getParam("run")->value();
+          File file = LittleFS.open(filepath);
+          if (file) {
+            runAddon(file);
+          }
+          response->print(F("OK"));
         } else if (request->hasParam("remove")) {
-          //uint8_t n = atoi(request->getParam("remove")->value().c_str());
-          if (LittleFS.remove(request->getParam("remove")->value())) {
-            response->println("OK");
+          filepath += request->getParam("remove")->value();
+          if (LittleFS.remove(filepath)) {
+            response->print(F("OK"));
           }
         } else {
           File root = LittleFS.open("/addons");
@@ -621,11 +627,11 @@ void setupWebServer() {
         }
       } else if (request->hasParam("gpio")) {
         if (request->hasParam("save")) {
-          const char* gpioParam = request->getParam("save")->value().c_str();
+          const char *gpioParam = request->getParam("save")->value().c_str();
           NVRAMWrite(_GPIO_ARRAY, gpioParam);
           loadRelayGPIO();
-        }else{
-          uint8_t count = 8; //sizeof(RelayPin) / sizeof(RelayPin[0]);
+        } else {
+          uint8_t count = 8;  //sizeof(RelayPin) / sizeof(RelayPin[0]);
           for (uint8_t i = 0; i < count; i++) {
             response->printf("%d", RelayPin[i]);
             if (i < count - 1) {
@@ -804,7 +810,7 @@ void setupWebServer() {
         }
       } else if (param0->name() == "alert") {
         n = _EMAIL_ALERT;
-        skip = (_EMAIL_ALERT - _SMTP_PASSWORD) + 1; //skip oauth token
+        skip = (_EMAIL_ALERT - _SMTP_PASSWORD) + 1;  //skip oauth token
       } else if (param0->name() == "demo") {
         n = _DEMO_PASSWORD;
       }
@@ -922,10 +928,11 @@ void loop() {
   if ((millis() - webTimer) > delayBetweenWiFi) {  //track web activity for 5 minutes
     applyPLC();
 #if ADDONS
-    applyAddons();
+    searchAddons(false);
 #endif
     readySleep();
   }
+  //delay(1);
   delay(10000);  // wait 10 seconds
 }
 
@@ -962,7 +969,7 @@ void readySleep() {
 
     //TODO: Check state and use WAKE_RF_DEFAULT for second stage
     //ESP.deepSleep(DEEP_SLEEP, WAKE_RF_DEFAULT);
-  }else{
+  } else {
     WiFi.disconnect(true);  //disassociate properly (easier to reconnect)
     WiFi.mode(WIFI_OFF);
   }
@@ -1025,8 +1032,8 @@ void turnNPNorPNP(const uint8_t pin, const uint8_t state, const uint8_t transist
   if (transistor == 1) {
     digitalWrite(pin, !state);
     if (state == 0) {
-      pinMode(pin, INPUT_PULLUP); // Float the pin for PNP off (true high-impedance)
-    }else{
+      pinMode(pin, INPUT_PULLUP);  // Float the pin for PNP off (true high-impedance)
+    } else {
       pinMode(pin, OUTPUT);
     }
   } else {
@@ -1475,50 +1482,55 @@ void parseRule(char *line) {
 }
 
 #if ADDONS
-void applyAddons() {
+void runAddon(File &file) {
+  String filename = file.name();
+#if DEBUG
+  Serial.print("Loading ");
+  Serial.println(filename);
+#endif
+  size_t size = file.size();
+  uint8_t *buffer = (uint8_t *)ps_malloc(size);  // Try PSRAM
+  if (!buffer) {
+    buffer = (uint8_t *)malloc(size);  // Fallback
+  }
+  if (!buffer) {
+#if DEBUG
+    Serial.println("Memory allocation failed");
+#endif
+    return;
+  }
+  file.read(buffer, size);
+#if DEBUG
+  Serial.print("Calling ");
+  Serial.println(filename);
+#endif
+  /*
+    addon_func_t* func_table = (addon_func_t*)buffer;
+    size_t func_count = 1;
+    for (size_t i = 0; i < func_count; i++) {
+      func_table[i](); // call addon function
+    }
+    */
+  addon_func_t func = (addon_func_t)buffer;
+  //func();
+  free(buffer);
+}
+
+void searchAddons(bool remove) {
   File root = LittleFS.open("/addons");
-  if (!root) {
+  if (root) {
     File file = root.openNextFile();
-    std::vector<uint8_t *> loaded_addons;  // keep track of allocated memory
-
     while (file) {
-      String filename = file.name();
-#if DEBUG
-      Serial.print("Loading ");
-      Serial.println(filename);
-#endif
-      size_t size = file.size();
-      uint8_t *buffer = (uint8_t *)heap_caps_malloc(size, MALLOC_CAP_EXEC);
-      if (!buffer) {
-#if DEBUG
-        Serial.println("Memory allocation failed");
-#endif
-        file = root.openNextFile();
-        continue;
+      if (remove) {
+        file.close();
+        String fn = file.name();
+        LittleFS.remove("/addons/" + fn);
+      } else {
+        runAddon(file);
+        file.close();
       }
-      file.read(buffer, size);
-      file.close();
-
-#if DEBUG
-      Serial.print("Calling ");
-      Serial.println(filename);
-#endif
-      /*
-        addon_func_t* func_table = (addon_func_t*)buffer;
-        size_t func_count = 1;
-        for (size_t i = 0; i < func_count; i++) {
-          func_table[i](); // call addon function
-        }
-        */
-      addon_func_t func = (addon_func_t)buffer;  // cast to function pointer
-      func();                                    // call addon function
-      loaded_addons.push_back(buffer);           // store pointer to free later
       file = root.openNextFile();
     }
-    // Optional: free memory
-    //for (auto ptr : loaded_addons) {
-    //  heap_caps_free(ptr);
-    //}
   }
 }
 #endif
@@ -1543,10 +1555,10 @@ uint32_t calculateDurationSeconds(const char *start_h, const char *start_m, cons
 void loadRelayGPIO() {
   strncpy(GPIO_ARRAY, NVRAMRead(_GPIO_ARRAY), sizeof(GPIO_ARRAY));
 
-  char buf[32] = {0};  // buffer to copy the string
+  char buf[32] = { 0 };                       // buffer to copy the string
   strncpy(buf, GPIO_ARRAY, sizeof(buf) - 1);  // ensure null-terminated
   int count = 0;
-  char* token = strtok(buf, ",");
+  char *token = strtok(buf, ",");
   while (token != NULL && count < 8) {
     RelayPin[count++] = atoi(token);  // convert to integer
     token = strtok(NULL, ",");
@@ -1594,7 +1606,7 @@ void applyPLC() {
       Serial.print(r->relay);
       Serial.println(" ACTIVE");
 #endif
-    }else{
+    } else {
       thread[relay].detach();
       runRelayFinish(RelayPin[relay], 1, transistor);
     }
@@ -1610,9 +1622,6 @@ void setupPLC() {
   if (!file) {
     return;
   }
-
-  //plc_rule_t *r = &rules[rule_count];
-  //memset(r, 0, sizeof(plc_rule_t));
   rule_count = 0;
 
   char line[128];

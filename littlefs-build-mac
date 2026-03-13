@@ -28,6 +28,7 @@ rm -rf data/img
 rm -rf data/nvram.json
 mkdir data/img
 cp -rf Web/img/8-channel-relay.svg data/img
+cp -rf Web/img/esp32-relay-x1.svg data/img
 cp -rf Web/img/esp32s2-mini.svg data/img
 cp -rf Web/img/eye-slash.svg data/img
 cp -rf Web/img/eye-slash-fill.svg data/img

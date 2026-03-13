@@ -7,8 +7,42 @@
         <link rel="stylesheet" type="text/css" href="css/tailwind.css">
         <script defer src="js/common.js"></script>
         <script>
+        	var nvram = new XMLHttpRequest();
+            nvram.responseType = 'json';
+            nvram.open('GET', 'nvram.json', true);
+            nvram.send();
+            nvram.onload = function(e) {
+                if (nvram.response != undefined && nvram.response.nvram) {
+			        var info = nvram.response.nvram[0];
+			        if (info.indexOf('ESP32-D0WD-V3') != -1) {
+            			document.getElementById('8-channel-relay').remove();
+			            var espboard = document.getElementById('esp32-board');
+			            espboard.src = 'img/esp32-relay-x1.svg';
+			            var testbutton = document.createElement('button');
+			            testbutton.textContent = 'Test Relay 1';
+                        testbutton.classList.add(
+                    	'bg-green-500',
+                    	'py-2',
+                    	'px-4',
+                    	'rounded',
+                    	'hover:bg-green-600',
+                    	'transition-colors',
+                    	'duration-200',
+                    	'justify-center',
+                    	'm-6'
+                        );
+						testbutton.onclick = function(e) {
+						    testRelay(this,1);
+						};
+                        espboard.parentElement.appendChild(testbutton);
+			        }
+			    } else {
+			       document.getElementById("esp32-board").src = 'img/esp32s2-mini.svg';
+			    }
+            };
 	        document.addEventListener('DOMContentLoaded', function(event)
 	        {
+
 	        	var xhr = new XMLHttpRequest();
 				xhr.open("GET", "plc.txt", true);
 				xhr.send();
@@ -86,7 +120,7 @@
                       'bg-red-500',
                       'hover:bg-red-600'
                     );
-                    obj.textContent = 'Stop #' + n;
+                     obj.textContent = obj.textContent.replace('Test','Stop');
         		}else{
         			obj.classList.remove(
                       'bg-red-500',
@@ -96,13 +130,14 @@
                       'bg-green-500',
                       'hover:bg-green-600'
                     );
-                    obj.textContent = 'Test #' + n;
+                    obj.textContent = obj.textContent.replace('Stop','Test');
         		}
 			}
         	function testRelay(obj, n)
 			{
 				action = 1;
-				if(obj.textContent == 'Stop #' + n) {
+
+				if (obj.textContent.indexOf('Stop') != -1) {
 					action = 0;
 				}
 				var xhr = new XMLHttpRequest();
@@ -164,9 +199,11 @@
 			    </div>
 		    </div>
 	  		<div class="flex flex-row gap-4">
-	  			<div class="bg-gray-100 dark:bg-gray-500 border border-gray-800 dark:border-white rounded-lg p-4">
-	  			<img src="img/esp32s2-mini.svg">
+	  			<center>
+	  			<div class="bg-gray-100 dark:bg-gray-500 border border-gray-800 dark:border-white rounded-lg p-4 text-lg font-semibold text-gray-800 dark:text-white">
+	  				<img id="esp32-board">
 	  			</div>
+	  			</center>
 	  		</div>
 	  		<div class="bg-gray-100 dark:bg-gray-500 border border-gray-800 dark:border-white rounded-lg p-4">
 			  	<div class="flex flex-row gap-4 w-full text-lg font-semibold text-gray-800 dark:text-white">
@@ -181,7 +218,7 @@
 				    </div>
 			  	</div>
 			</div>
-	  		<div class="bg-gray-100 dark:bg-gray-500 border border-gray-800 dark:border-white rounded-lg p-4">
+	  		<div id="8-channel-relay" class="bg-gray-100 dark:bg-gray-500 border border-gray-800 dark:border-white rounded-lg p-4">
 			    <div class="flex flex-row lg:flex-col sm:flex-row gap-4 w-full text-lg font-semibold text-gray-800 dark:text-white">
 				    <div class="grid grid-cols-1 lg:grid-cols-8 gap-2 flex-1">
 					 	<div class="justify-self-center self-center order-8 lg:order-1">1</div>
