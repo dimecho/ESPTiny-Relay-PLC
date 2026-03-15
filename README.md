@@ -79,6 +79,8 @@ Flashing Options:
 1. Wireless - Web Browser [http://192.168.8.8/update](http://192.168.8.8/update)
 2. USB - [Arduino LittleFS Plugin](https://github.com/lorol/arduino-esp32littlefs-plugin)
 
+**Note:** ESP32 S2-Mini must have resistor (~10K) betweeen pin EN -> 3.3V for Web updates to work.
+
 ## License
 
 [![CCSA](https://licensebuttons.net/l/by-sa/4.0/88x31.png)](https://creativecommons.org/licenses/by-sa/4.0/legalcode)

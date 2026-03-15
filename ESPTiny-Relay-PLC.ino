@@ -2,10 +2,11 @@
 
 #define DEBUG 0
 #define ADDONS 1
+#define CLOCK_DS1307 1
 #define TIMECLIENT_NTP 1
 #define EMAILCLIENT_SMTP 0
-#define EEPROM_ID 0xAC01  //Identify Sketch by EEPROM
 #define WPA2ENTERPRISE 0
+#define EEPROM_ID 0xAC01  //Identify Sketch by EEPROM
 #define UART_BAUDRATE 115200
 //#define ARDUINO_SIGNING 0
 
@@ -19,9 +20,11 @@
 #include <Update.h>
 #include <StreamString.h>
 
+#if CLOCK_DS1307
 #include <Wire.h>
 #include <DS1307.h>
 DS1307 rtc;
+#endif
 
 #define SPIFFS LittleFS
 #define LFS_VERSION 0x0002000b
@@ -168,7 +171,7 @@ const int NVRAM_Map[] = {
 
 uint8_t WIRELESS_MODE = 0;  //WIRELESS_AP = 0, WIRELESS_STA(WPA2) = 1, WIRELESS_STA(WPA2 ENT) = 2, WIRELESS_STA(WEP) = 3
 //uint8_t WIRELESS_HIDE = 0;
-uint8_t WIRELESS_PHY_MODE = 2;    //WIRELESS_PHY_MODE_11B = 1, WIRELESS_PHY_MODE_11G = 2, WIRELESS_PHY_MODE_11N = 3
+uint8_t WIRELESS_PHY_MODE = 3;    //WIRELESS_PHY_MODE_11B = 1, WIRELESS_PHY_MODE_11G = 2, WIRELESS_PHY_MODE_11N = 3
 uint8_t WIRELESS_PHY_POWER = 10;  //Max = 20.5dBm (some ESP modules 24.0dBm) should be multiples of 0.25
 uint8_t WIRELESS_CHANNEL = 7;
 char WIRELESS_SSID[16] = "Relay";
@@ -281,6 +284,7 @@ void setup() {
   //EEPROM.end();
 
   time_t epoch = rtcData.runTime;  //DS1307 not found
+#if CLOCK_DS1307
   Wire.begin();
   Wire.beginTransmission(0x68);
   if (Wire.endTransmission() == 0) {
@@ -297,6 +301,7 @@ void setup() {
     };
     epoch = mktime(&timeinfo);  //Convert to epoch
   }
+#endif
   setSystemTime(epoch);
   setupPLC();
 
@@ -531,6 +536,7 @@ void setupWebServer() {
 #endif
       response->printf("%.2f", tempC);
     } else if (request->hasParam("clock")) {
+#if CLOCK_DS1307
       /*
       byte error, address;
       int nDevices;
@@ -563,27 +569,37 @@ void setupWebServer() {
       } else {
         response->printf("I2C Error: %u", active);
       }
+#else
+      time_t now;
+      time(&now);
+      struct tm now_tm;
+      gmtime_r(&now, &now_tm);
+      response->printf("UTC Date: %02d-%02d-%04d Time: %02d:%02d:%02d DOW: %d", (now_tm.mon + 1), now_tm.mday, (now_tm.year + 1900), now_tm.hour, now_tm.min, now_tm.sec, now_tm.wday);
+#endif
       //}
     } else if (request->hasParam("ntp")) {
       if (request->hasParam("tz")) {
         const char *tz = request->getParam("tz")->value().c_str();
         NVRAMWrite(_TIMEZONE_OFFSET, tz);
       }
+      time_t now;
       if (request->hasParam("epoch")) {
         time_t epoch = atoi(request->getParam("epoch")->value().c_str());
         setSystemTime(epoch);
+#if CLOCK_DS1307
+        time(&now);                          // get current system time (UTC internally)
+        struct tm *now_tm = gmtime(&now);  // interprets as UTC
+        if (request->hasParam("epoch")) {
+          rtc.fillByYMD((now_tm->tm_year + 1900), (now_tm->tm_mon + 1), now_tm->tm_mday);
+          rtc.fillByHMS(now_tm->tm_hour, now_tm->tm_min, now_tm->tm_sec);
+          rtc.fillDayOfWeek(now_tm->tm_wday + 1);
+          rtc.setTime();
+          //rtc.startClock();
+        }
+#endif
       }
-      time_t now;
-      time(&now);                          // get current system time (UTC internally)
-      struct tm *timeinfo = gmtime(&now);  // interprets as UTC
-      if (request->hasParam("epoch")) {
-        rtc.fillByYMD((timeinfo->tm_year + 1900), (timeinfo->tm_mon + 1), timeinfo->tm_mday);
-        rtc.fillByHMS(timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
-        rtc.fillDayOfWeek(timeinfo->tm_wday + 1);
-        rtc.setTime();
-        //rtc.startClock();
-      }
-      timeinfo = localtime(&now);  // converts UTC to local time using TZ
+      time(&now);
+      struct tm *timeinfo = localtime(&now);  // converts UTC to local time using TZ
       response->printf("Date: %02d-%02d-%04d Time: %02d:%02d:%02d DOW: %d", (timeinfo->tm_mon + 1), timeinfo->tm_mday, timeinfo->tm_year + 1900, timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, timeinfo->tm_wday);
     } else if (strlen(DEMO_PASSWORD) == 0) {
       if (request->hasParam("reset")) {
@@ -1249,10 +1265,6 @@ void smtpSend(const char *subject, const char *body, uint8_t now) {
     off = 1;
   }
 
-#if DEBUG
-  smtp.debug(1);
-  Serial.printf("Unix time: %u\n", timeClient.getEpochTime());
-#endif
 #if TIMECLIENT_NTP
   time_t now;
   time(&now);
@@ -1261,6 +1273,10 @@ void smtpSend(const char *subject, const char *body, uint8_t now) {
 //  session.time.ntp_server = F("pool.ntp.org");
 //  session.time.gmt_offset = -8;
 //  session.time.day_light_offset = 0;
+#if DEBUG
+  smtp.debug(1);
+  Serial.printf("Unix time: %u\n", timeClient.getEpochTime());
+#endif
 #endif
 
   const char *smtpURL = NVRAMRead(_SMTP_SERVER);
