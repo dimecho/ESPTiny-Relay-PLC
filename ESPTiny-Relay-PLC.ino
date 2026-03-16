@@ -83,6 +83,7 @@ uint32 = 0 - 2,147,483,647
 //ESP32, RTC memory is only retained across deep sleep.
 RTC_DATA_ATTR struct {
   time_t runTime;      //lastEpoch
+  uint64_t runTime_ms;  //count millis() during sleep
   uint16_t alertTime;  //prevent email spam
 } rtcData;
 unsigned long webTimer = 0;                        //track last webpage access
@@ -283,7 +284,7 @@ void setup() {
   }
   //EEPROM.end();
 
-  time_t epoch = rtcData.runTime;  //DS1307 not found
+  time_t epoch = rtcData.runTime + rtcData.runTime_ms / 1000;  //DS1307 not found
 #if CLOCK_DS1307
   Wire.begin();
   Wire.beginTransmission(0x68);
@@ -336,9 +337,10 @@ void setup() {
 #endif
     //Emergency Recover (RST to GND)
     if (wakeupReason == ESP_RST_EXT) {       //ESP_RST_EXT (2) ESP_RST_SW (3)
+      DEEP_SLEEP = 600;
       ALERTS[0] = '1';                       //email DHCP IP
       ALERTS[1] = '0';                       //low voltage
-      memset(&rtcData, 0, sizeof(rtcData));  //reset RTC memory (set all zero)
+      //memset(&rtcData, 0, sizeof(rtcData));  //reset RTC memory (set all zero)
       setupWiFi(22);
       blinky(1200, 1);
       //ArduinoOTA.begin();
@@ -981,6 +983,7 @@ void readySleep() {
     time_t now;
     time(&now);
     rtcData.runTime = now + DEEP_SLEEP;  //add sleep time, when we wake up will be accurate.
+    rtcData.runTime_ms += millis();
     esp_deep_sleep_start();              //GPIO16 (D0) needs to be tied to RST to wake from deepSleep
 
     //TODO: Check state and use WAKE_RF_DEFAULT for second stage
