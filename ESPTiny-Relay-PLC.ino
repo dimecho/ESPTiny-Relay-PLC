@@ -83,7 +83,7 @@ uint32 = 0 - 2,147,483,647
 //ESP32, RTC memory is only retained across deep sleep.
 RTC_DATA_ATTR struct {
   time_t runTime;      //lastEpoch
-  uint64_t runTime_ms;  //count millis() during sleep
+  uint16_t runTime_ms;  //count millis() during sleep
   uint16_t alertTime;  //prevent email spam
 } rtcData;
 unsigned long webTimer = 0;                        //track last webpage access
@@ -284,7 +284,14 @@ void setup() {
   }
   //EEPROM.end();
 
-  time_t epoch = rtcData.runTime + rtcData.runTime_ms / 1000;  //DS1307 not found
+  time_t epoch = rtcData.runTime;  //DS1307 not found
+#if DEBUG
+  Serial.printf("Time calibration (milliseconds):%u\n", rtcData.runTime_ms);
+#endif
+  if (rtcData.runTime_ms >= 60000) { //recycle millis into seconds (1 min drift)
+    epoch += rtcData.runTime_ms / 1000;
+    rtcData.runTime_ms = 0;
+  }
 #if CLOCK_DS1307
   Wire.begin();
   Wire.beginTransmission(0x68);
