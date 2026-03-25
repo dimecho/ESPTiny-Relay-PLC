@@ -1,24 +1,24 @@
 ; DS1307 Battery Charge (Winter/Summer)
 
-Relay1 : 1-2 : 1,15 : * : 10:00-16:00 : ON : PNP
-Relay1 : 11-12 : 1,15 : * : 10:00-16:00 : ON : PNP
-Relay1 : 3-10 : 1 : * : 12:00-18:00 : ON : PNP
+Relay1 : 1-2 : 1,15 : * : 10:00:00-16:00:00 : ON : PNP
+Relay1 : 11-12 : 1,15 : * : 10:00:00-16:00:00 : ON : PNP
+Relay1 : 3-10 : 1 : * : 12:00:00-18:00:00: ON : PNP
 
 ; Night Light Relay (Sunset Table)
 
-Relay8 : 1  : * : * : 17:04-01:00 : ON : PNP
-Relay8 : 2  : * : * : 17:50-01:00 : ON : PNP
-Relay8 : 3  : * : * : 18:45-01:00 : ON : PNP
-Relay8 : 4  : * : * : 19:30-01:00 : ON : PNP
-Relay8 : 5  : * : * : 20:20-01:00 : ON : PNP
-Relay8 : 6  : * : * : 21:05-01:00 : ON : PNP
-Relay8 : 7  : * : * : 21:20-01:00 : ON : PNP
-Relay8 : 8  : * : * : 20:50-01:00 : ON : PNP
-Relay8 : 9  : * : * : 19:50-01:00 : ON : PNP
-Relay8 : 10 : * : * : 18:42-01:00 : ON : PNP
-Relay8 : 11 : * : * : 18:38-01:00 : ON : PNP
-Relay8 : 12 : * : * : 16:59-01:00 : ON : PNP
+Relay8 : 1  : * : * : 17:04:00-01:00:00 : ON : PNP
+Relay8 : 2  : * : * : 17:50:00-01:00:00 : ON : PNP
+Relay8 : 3  : * : * : 18:45:00-01:00:00 : ON : PNP
+Relay8 : 4  : * : * : 19:30:00-01:00:00 : ON : PNP
+Relay8 : 5  : * : * : 20:20:00-01:00:00 : ON : PNP
+Relay8 : 6  : * : * : 21:05:00-01:00:00 : ON : PNP
+Relay8 : 7  : * : * : 21:20:00-01:00:00 : ON : PNP
+Relay8 : 8  : * : * : 20:50:00-01:00:00 : ON : PNP
+Relay8 : 9  : * : * : 19:50:00-01:00:00 : ON : PNP
+Relay8 : 10 : * : * : 18:42:00-01:00:00 : ON : PNP
+Relay8 : 11 : * : * : 18:38:00-01:00:00 : ON : PNP
+Relay8 : 12 : * : * : 16:59:00-01:00:00 : ON : PNP
 
 ; Christmas Lights Relay
 
-Relay7 : 11,1 : 24-31,1-2 : * : 16:00-01:00 : ON : PNP
+Relay7 : 11,1 : 24-31,1-2 : * : 16:00:00-01:00:00 : ON : PNP

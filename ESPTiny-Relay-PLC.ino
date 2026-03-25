@@ -82,9 +82,9 @@ uint32 = 0 - 2,147,483,647
 */
 //ESP32, RTC memory is only retained across deep sleep.
 RTC_DATA_ATTR struct {
-  time_t runTime;      //lastEpoch
-  uint16_t runTime_ms;  //count millis() during sleep
-  uint16_t alertTime;  //prevent email spam
+  time_t runTime;       //lastEpoch
+  uint32_t runTime_ms;  //count millis() during sleep
+  uint16_t alertTime;   //prevent email spam
 } rtcData;
 unsigned long webTimer = 0;                        //track last webpage access
 unsigned long delayBetweenWiFi = 8 * 60 * 1000UL;  // 8 minutes
@@ -100,8 +100,10 @@ typedef struct {
   char type[8];
   char start_hour[3];
   char start_minute[3];
+  char start_second[3];
   char end_hour[3];
   char end_minute[3];
+  char end_second[3];
   time_t start_epoch;
   time_t end_epoch;
 } plc_rule_t;
@@ -277,7 +279,7 @@ void setup() {
     memset(&rtcData, 0, sizeof(rtcData));  //reset RTC memory
   } else {
     loadRelayGPIO();
-    DEEP_SLEEP = atoi(NVRAMRead(_DEEP_SLEEP)) * 60;
+    DEEP_SLEEP = atoi(NVRAMRead(_DEEP_SLEEP));
     LOG_ENABLE = atoi(NVRAMRead(_LOG_ENABLE));
     strncpy(ALERTS, NVRAMRead(_ALERTS), sizeof(ALERTS));
     strncpy(RELAY_NAME, NVRAMRead(_RELAY_NAME), sizeof(RELAY_NAME));
@@ -288,7 +290,7 @@ void setup() {
 #if DEBUG
   Serial.printf("Time calibration (milliseconds):%u\n", rtcData.runTime_ms);
 #endif
-  if (rtcData.runTime_ms >= 60000) { //recycle millis into seconds (1 min drift)
+  if (rtcData.runTime_ms >= 60000) {  //recycle millis into seconds (1 min drift)
     epoch += rtcData.runTime_ms / 1000;
     rtcData.runTime_ms = 0;
   }
@@ -343,10 +345,10 @@ void setup() {
     searchAddons(false);
 #endif
     //Emergency Recover (RST to GND)
-    if (wakeupReason == ESP_RST_EXT) {       //ESP_RST_EXT (2) ESP_RST_SW (3)
+    if (wakeupReason == ESP_RST_EXT) {  //ESP_RST_EXT (2) ESP_RST_SW (3)
       DEEP_SLEEP = 600;
-      ALERTS[0] = '1';                       //email DHCP IP
-      ALERTS[1] = '0';                       //low voltage
+      ALERTS[0] = '1';  //email DHCP IP
+      ALERTS[1] = '0';  //low voltage
       //memset(&rtcData, 0, sizeof(rtcData));  //reset RTC memory (set all zero)
       setupWiFi(22);
       blinky(1200, 1);
@@ -579,11 +581,11 @@ void setupWebServer() {
         response->printf("I2C Error: %u", active);
       }
 #else
-      time_t now;
-      time(&now);
-      struct tm now_tm;
-      gmtime_r(&now, &now_tm);
-      response->printf("UTC Date: %02d-%02d-%04d Time: %02d:%02d:%02d DOW: %d", (now_tm.mon + 1), now_tm.mday, (now_tm.year + 1900), now_tm.hour, now_tm.min, now_tm.sec, now_tm.wday);
+        time_t now;
+        time(&now);
+        struct tm now_tm;
+        gmtime_r(&now, &now_tm);
+        response->printf("UTC Date: %02d-%02d-%04d Time: %02d:%02d:%02d DOW: %d", (now_tm.mon + 1), now_tm.mday, (now_tm.year + 1900), now_tm.hour, now_tm.min, now_tm.sec, now_tm.wday);
 #endif
       //}
     } else if (request->hasParam("ntp")) {
@@ -596,7 +598,7 @@ void setupWebServer() {
         time_t epoch = atoi(request->getParam("epoch")->value().c_str());
         setSystemTime(epoch);
 #if CLOCK_DS1307
-        time(&now);                          // get current system time (UTC internally)
+        time(&now);                        // get current system time (UTC internally)
         struct tm *now_tm = gmtime(&now);  // interprets as UTC
         if (request->hasParam("epoch")) {
           rtc.fillByYMD((now_tm->tm_year + 1900), (now_tm->tm_mon + 1), now_tm->tm_mday);
@@ -670,7 +672,7 @@ void setupWebServer() {
         for (uint8_t i = 0; i < rule_count; i++) {
           plc_rule_t *r = &rules[i];
           //response->printf("[%u] %d - %d\n",  r->relay, r->start_epoch, r->end_epoch);
-          response->printf("[#%u] %02d:%02d - %02d:%02d %s -> %s\n", r->relay, atoi(r->start_hour), atoi(r->start_minute), atoi(r->end_hour), atoi(r->end_minute), r->action, timePLC(r) ? "TRUE" : "FALSE");
+          response->printf("[#%u] %02d:%02d:%02d - %02d:%02d:%02d %s -> %s\n", r->relay, atoi(r->start_hour), atoi(r->start_minute), atoi(r->start_second), atoi(r->end_hour), atoi(r->end_minute), atoi(r->end_second), r->action, timePLC(r, true) ? "TRUE" : "FALSE");
         }
       } else if (request->hasParam("relay")) {
         const AsyncWebParameter *testRelay = request->getParam(0);
@@ -958,7 +960,7 @@ void loop() {
     readySleep();
   }
   //delay(1);
-  delay(10000);  // wait 10 seconds
+  delay(1000);  // wait 1 second
 }
 
 void readySleep() {
@@ -991,7 +993,7 @@ void readySleep() {
     time(&now);
     rtcData.runTime = now + DEEP_SLEEP;  //add sleep time, when we wake up will be accurate.
     rtcData.runTime_ms += millis();
-    esp_deep_sleep_start();              //GPIO16 (D0) needs to be tied to RST to wake from deepSleep
+    esp_deep_sleep_start();  //GPIO16 (D0) needs to be tied to RST to wake from deepSleep
 
     //TODO: Check state and use WAKE_RF_DEFAULT for second stage
     //ESP.deepSleep(DEEP_SLEEP, WAKE_RF_DEFAULT);
@@ -1478,12 +1480,20 @@ void parseRule(char *line) {
   r->start_minute[0] = token[3];
   r->start_minute[1] = token[4];
   r->start_minute[2] = '\0';
-  r->end_hour[0] = token[6];
-  r->end_hour[1] = token[7];
+  r->start_second[0] = token[6];
+  r->start_second[1] = token[7];
+  r->start_second[2] = '\0';
+  r->end_hour[0] = token[9];
+  r->end_hour[1] = token[10];
   r->end_hour[2] = '\0';
-  r->end_minute[0] = token[9];
-  r->end_minute[1] = token[10];
+  r->end_minute[0] = token[12];
+  r->end_minute[1] = token[13];
   r->end_minute[2] = '\0';
+  r->end_second[0] = token[15];
+  r->end_second[1] = token[16];
+  r->end_second[2] = '\0';
+  token = strtok(NULL, ":");
+  token = strtok(NULL, ":");
   token = strtok(NULL, ":");
   token = strtok(NULL, ":");
 
@@ -1561,14 +1571,16 @@ void searchAddons(bool remove) {
 }
 #endif
 
-uint32_t calculateDurationSeconds(const char *start_h, const char *start_m, const char *end_h, const char *end_m) {
+uint32_t calculateDurationSeconds(const char *start_h, const char *start_m, const char *start_s, const char *end_h, const char *end_m, const char *end_s) {
   uint8_t sh = atoi(start_h);
   uint8_t sm = atoi(start_m);
+  uint8_t ss = atoi(start_s);
   uint8_t eh = atoi(end_h);
   uint8_t em = atoi(end_m);
+  uint8_t es = atoi(end_s);
 
-  uint32_t start_sec = sh * 3600 + sm * 60;
-  uint32_t end_sec = eh * 3600 + em * 60;
+  uint32_t start_sec = sh * 3600 + sm * 60 + ss;
+  uint32_t end_sec = eh * 3600 + em * 60 + es;
 
   // Handle overnight interval
   if (end_sec <= start_sec) {
@@ -1591,16 +1603,39 @@ void loadRelayGPIO() {
   }
 }
 
-bool timePLC(plc_rule_t *r) {
+bool timePLC(plc_rule_t *r, bool withseconds) {
   time_t now;
   time(&now);
   struct tm *now_tm = localtime(&now);
-  int now_minutes = now_tm->tm_hour * 60 + now_tm->tm_min;
-  int start_minutes = atoi(r->start_hour) * 60 + atoi(r->start_minute);
-  int end_minutes = atoi(r->end_hour) * 60 + atoi(r->end_minute);
+
+  int start_h = atoi(r->start_hour);
+  int start_m = atoi(r->start_minute);
+  int end_h = atoi(r->end_hour);
+  int end_m = atoi(r->end_minute);
+  if (!withseconds) {
+    // Subtract 1 minute from start
+    if (start_m == 0) {
+      start_m = 59;
+      start_h = (start_h == 0) ? 23 : start_h - 1;
+    } else {
+      start_m = start_m - 1;
+    }
+    // Add 1 minute to end
+    /*
+    if (end_m == 59) {
+      end_m = 0;
+      end_h = (end_h == 23) ? 0 : end_h + 1;
+    } else {
+      end_m = end_m + 1;
+    }
+    */
+  }
+  int now_minutes = now_tm->tm_hour * 3600 + now_tm->tm_min * 60 + now_tm->tm_sec;
+  int start_minutes = start_h * 3600 + start_m * 60 + (withseconds ? atoi(r->start_second) : 0);
+  int end_minutes = end_h * 3600 + end_m * 60 + (withseconds ? atoi(r->end_second) : 0);
   int active = false;
 
-  // Overnight case: end < start (e.g., 17:40-01:00)
+  // Overnight case: end < start (e.g., 17:40:00-01:00:00)
   if (end_minutes < start_minutes) {
     // Current time is either after start or before end next day
     if (now_minutes >= start_minutes || now_minutes <= end_minutes) {
@@ -1620,8 +1655,8 @@ void applyPLC() {
     plc_rule_t *r = &rules[i];
     uint8_t relay = r->relay - 1;  //convert relay# to array#
     uint8_t transistor = (r->type[0] == 'P') ? 1 : 0;
-    if (timePLC(r)) {
-      uint32_t duration = calculateDurationSeconds(r->start_hour, r->start_minute, r->end_hour, r->end_minute);
+    if (timePLC(r, true)) {
+      uint32_t duration = calculateDurationSeconds(r->start_hour, r->start_minute, r->start_second, r->end_hour, r->end_minute, r->end_second);
       if (r->action[0] == 'O' && r->action[1] == 'N') {
         runRelay(RelayPin[relay], 1, duration, transistor, relay);
       } else {
@@ -1662,4 +1697,18 @@ void setupPLC() {
     parseRule(line);
   }
   file.close();
+
+  bool fastsleep = false;
+  for (int i = 0; i < rule_count; i++) {
+    plc_rule_t *r = &rules[i];
+    if (timePLC(r, false)) { //one of the rules within minutes to run (seconds countdown)
+      fastsleep = true;
+      break;
+    }
+  }
+  if (fastsleep) {
+    DEEP_SLEEP = 1;  //1 second
+  } else {
+    DEEP_SLEEP *= 60;  //1 minute
+  }
 }
