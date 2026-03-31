@@ -60,7 +60,7 @@ static uint8_t RelayPin[] = { 23, 23, 23, 23, 23, 23, 23, 23 };
 #endif
 
 #include <Ticker.h>
-Ticker thread[8];
+Ticker thread[9];
 void runRelay(const uint8_t pin, const uint8_t state, uint32_t duration, const uint8_t transistor);
 void runRelay(const uint8_t pin, const uint8_t state, uint32_t duration, const uint8_t transistor, const uint8_t threaded);
 Ticker bthread;

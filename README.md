@@ -53,7 +53,7 @@ Relay7 : 6     : 10-20   : WED     : 06:00-08:00 : ON      : PNP
 Sketch (Firmware)
 
 1. Install [Arduino IDE](https://www.arduino.cc/en/main/software)
-2. Arduino/File -> Preferences -> Additional Boards Manager URLs: ```https://espressif.github.io/arduino-esp32/package_esp32_index.json```
+2. Arduino/File -> Preferences -> Additional Board Manager URL: ```https://espressif.github.io/arduino-esp32/package_esp32_index.json```
 3. Tools -> Boards -> Board Manager -> esp32 -> Install
 4. Tools -> Boards -> ESP32S2 Dev Module
 5. Sketch -> Export compiled Binary
