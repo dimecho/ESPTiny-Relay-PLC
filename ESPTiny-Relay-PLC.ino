@@ -1,4 +1,4 @@
-#define _VERSION "1.0.0 (03/03/2026)"
+#include "semver/version.h"
 
 #define DEBUG 0
 #define ADDONS 1
