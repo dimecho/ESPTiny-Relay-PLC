@@ -85,6 +85,7 @@ RTC_DATA_ATTR struct {
   time_t runTime;       //lastEpoch
   uint32_t runTime_ms;  //count millis() during sleep
   uint16_t alertTime;   //prevent email spam
+  String plcProgramming; //saves PLC during filesystem upgrade
 } rtcData;
 unsigned long webTimer = 0;                        //track last webpage access
 unsigned long delayBetweenWiFi = 8 * 60 * 1000UL;  // 8 minutes
@@ -285,6 +286,9 @@ void setup() {
     strncpy(RELAY_NAME, NVRAMRead(_RELAY_NAME), sizeof(RELAY_NAME));
   }
   //EEPROM.end();
+  if(rtcData.plcProgramming != "") {
+    savePLC(rtcData.plcProgramming);
+  }
 
   time_t epoch = rtcData.runTime;  //DS1307 not found
 #if DEBUG
@@ -702,14 +706,8 @@ void setupWebServer() {
     AsyncResponseStream *response = request->beginResponseStream(FPSTR(text_plain));
 
     if (strlen(DEMO_PASSWORD) == 0) {
-      String plcText;
       if (request->hasParam("plcbox", true)) {  // true = POST body
-        plcText = request->getParam("plcbox", true)->value();
-      }
-      File file = LittleFS.open("/plc.txt", "w");
-      if (file) {
-        file.print(plcText);
-        file.close();
+        savePLC(request->getParam("plcbox", true)->value());
       }
       //setupPLC();
       //applyPLC();
@@ -875,6 +873,8 @@ void setupWebServer() {
       if (!request->authenticate("", DEMO_PASSWORD))
         return request->requestAuthentication();
 #endif
+    rtcData.plcProgramming = LittleFS.open("/plc.txt", "r").readString();
+
     AsyncResponseStream *response = request->beginResponseStream(FPSTR(text_html));
     response->print(F("<!DOCTYPE html><html><body>"));
     //if (request->hasParam("boot")) {
@@ -1671,6 +1671,15 @@ void applyPLC() {
       thread[relay].detach();
       runRelayFinish(RelayPin[relay], 1, transistor);
     }
+  }
+}
+
+void savePLC(String plcProgramming) {
+  File file = LittleFS.open("/plc.txt", "w");
+  if (file) {
+    file.print(plcProgramming);
+    file.close();
+    rtcData.plcProgramming = "";
   }
 }
 
