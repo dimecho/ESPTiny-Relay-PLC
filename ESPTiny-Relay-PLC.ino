@@ -85,10 +85,10 @@ RTC_DATA_ATTR struct {
   time_t runTime;       //lastEpoch
   uint32_t runTime_ms;  //count millis() during sleep
   uint16_t alertTime;   //prevent email spam
-  String plcProgramming; //saves PLC during filesystem upgrade
 } rtcData;
 unsigned long webTimer = 0;                        //track last webpage access
 unsigned long delayBetweenWiFi = 8 * 60 * 1000UL;  // 8 minutes
+static String plcProgramming; //saves PLC during filesystem upgrade
 
 #define MAX_RULES 16
 
@@ -286,9 +286,6 @@ void setup() {
     strncpy(RELAY_NAME, NVRAMRead(_RELAY_NAME), sizeof(RELAY_NAME));
   }
   //EEPROM.end();
-  if(rtcData.plcProgramming != "") {
-    savePLC(rtcData.plcProgramming);
-  }
 
   time_t epoch = rtcData.runTime;  //DS1307 not found
 #if DEBUG
@@ -873,8 +870,6 @@ void setupWebServer() {
       if (!request->authenticate("", DEMO_PASSWORD))
         return request->requestAuthentication();
 #endif
-    rtcData.plcProgramming = LittleFS.open("/plc.txt", "r").readString();
-
     AsyncResponseStream *response = request->beginResponseStream(FPSTR(text_html));
     response->print(F("<!DOCTYPE html><html><body>"));
     //if (request->hasParam("boot")) {
@@ -902,7 +897,7 @@ void setupWebServer() {
         if (!request->authenticate("", DEMO_PASSWORD))
           return request->requestAuthentication();
 #endif
-      AsyncResponseStream *response = request->beginResponseStream(FPSTR(text_html));
+      AsyncResponseStream *response = request->beginResponseStream(FPSTR(text_plain));
 
       if (Update.hasError()) {
         StreamString str;
@@ -910,10 +905,18 @@ void setupWebServer() {
         response->print(str);
       } else {
         response->print(F("Update Success! ..."));
+        response->print("\n\n");
+        response->print(plcProgramming);
       }
       response->addHeader(FPSTR(refresh_http), "8;url=/");
       bthread.detach();
       bthread.attach(2, []() {
+        if(plcProgramming != "") {
+#if DEBUG
+          Serial.println("Restoring PLC:\n" + plcProgramming);
+#endif
+          savePLC(plcProgramming);
+        }
         ESP.restart();
       });
       request->send(response);
@@ -1216,12 +1219,10 @@ String getContentType(String filename) {
 //===============
 void WebUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
   if (!index) {
-    //WARNING: Do not save RTC memory after Update.begin(). "chksum" will be different after reboot, firmware will not flash
-    /*
-    memset(&rtcData, 0, sizeof(rtcData));  //reset RTC memory (set all zero)
-    ESP.rtcUserMemoryWrite(32, (uint32_t *)&rtcData, sizeof(rtcData));
-    */
     if (filename.indexOf("fs") != -1) {
+      //WARNING: Do not save RTC memory after Update.begin(). "chksum" will be different after reboot, firmware will not flash
+      plcProgramming = LittleFS.open("/plc.txt", "r").readString();
+
       //if (request->hasParam("filesystem", true)) {
       //https://github.com/ayushsharma82/ElegantOTA/blob/master/src/ElegantOTA.cpp
       size_t fsSize = UPDATE_SIZE_UNKNOWN;
@@ -1674,12 +1675,11 @@ void applyPLC() {
   }
 }
 
-void savePLC(String plcProgramming) {
+void savePLC(String plc) {
   File file = LittleFS.open("/plc.txt", "w");
   if (file) {
-    file.print(plcProgramming);
+    file.print(plc);
     file.close();
-    rtcData.plcProgramming = "";
   }
 }
 
