@@ -238,7 +238,9 @@ void setup() {
       Serial.println(WiFi.SSID(i));
 #endif
       if (WiFi.SSID(i) == WIRELESS_SSID) {
-        snprintf(WIRELESS_SSID, sizeof(WIRELESS_SSID), "%s-%u", WIRELESS_SSID, i);
+        char *p = WIRELESS_SSID + strlen(WIRELESS_SSID);
+        p[0] = '-'; p[1] = '0' + (i / 100); p[2] = '0' + ((i / 10) % 10);
+        p[3] = '0' + (i % 10); p[4] = '\0';
         break;
       }
     }
@@ -546,7 +548,7 @@ void setupWebServer() {
       temperature_sensor_get_celsius(temp_handle, &tempC);
       temperature_sensor_disable(temp_handle);
 #endif
-      response->printf("%.2f", tempC);
+      response->print(tempC, 2);
     } else if (request->hasParam("clock")) {
 #if CLOCK_DS1307
       /*
@@ -577,16 +579,35 @@ void setupWebServer() {
       uint8_t active = Wire.endTransmission();
       if (active == 0) {
         rtc.getTime();
-        response->printf("UTC Date: %02d-%02d-%04d Time: %02d:%02d:%02d DOW: %d", rtc.month, rtc.dayOfMonth, (rtc.year + 100 + 1900), rtc.hour, rtc.minute, rtc.second, (rtc.dayOfWeek - 1));
+        response->print(F("UTC Date: "));
+        response->print(rtc.month); response->write('-');
+        response->print(rtc.dayOfMonth); response->write('-');
+        response->print(rtc.year + 100 + 1900);
+        response->print(F(" Time: "));
+        response->print(rtc.hour); response->write(':');
+        response->print(rtc.minute); response->write(':');
+        response->print(rtc.second);
+        response->print(F(" DOW: "));
+        response->print(rtc.dayOfWeek - 1);
       } else {
-        response->printf("I2C Error: %u", active);
+        response->print(F("I2C Error: "));
+        response->print(active);
       }
 #else
         time_t now;
         time(&now);
         struct tm now_tm;
         gmtime_r(&now, &now_tm);
-        response->printf("UTC Date: %02d-%02d-%04d Time: %02d:%02d:%02d DOW: %d", (now_tm.mon + 1), now_tm.mday, (now_tm.year + 1900), now_tm.hour, now_tm.min, now_tm.sec, now_tm.wday);
+        response->print(F("UTC Date: "));
+        response->print(now_tm.mon + 1); response->write('-');
+        response->print(now_tm.mday); response->write('-');
+        response->print(now_tm.year + 1900);
+        response->print(F(" Time: "));
+        response->print(now_tm.hour); response->write(':');
+        response->print(now_tm.min); response->write(':');
+        response->print(now_tm.sec);
+        response->print(F(" DOW: "));
+        response->print(now_tm.wday);
 #endif
       //}
     } else if (request->hasParam("ntp")) {
@@ -612,7 +633,16 @@ void setupWebServer() {
       }
       time(&now);
       struct tm *timeinfo = localtime(&now);  // converts UTC to local time using TZ
-      response->printf("Date: %02d-%02d-%04d Time: %02d:%02d:%02d DOW: %d", (timeinfo->tm_mon + 1), timeinfo->tm_mday, timeinfo->tm_year + 1900, timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, timeinfo->tm_wday);
+      response->print(F("Date: "));
+      response->print(timeinfo->tm_mon + 1); response->write('-');
+      response->print(timeinfo->tm_mday); response->write('-');
+      response->print(timeinfo->tm_year + 1900);
+      response->print(F(" Time: "));
+      response->print(timeinfo->tm_hour); response->write(':');
+      response->print(timeinfo->tm_min); response->write(':');
+      response->print(timeinfo->tm_sec);
+      response->print(F(" DOW: "));
+      response->print(timeinfo->tm_wday);
     } else if (strlen(DEMO_PASSWORD) == 0) {
       if (request->hasParam("reset")) {
         NVRAM_Erase();
@@ -649,7 +679,8 @@ void setupWebServer() {
           File root = LittleFS.open("/addons");
           File file = root.openNextFile();
           while (file) {
-            response->printf("%s\n", file.name());
+            response->print(file.name());
+            response->write('\n');
             file = root.openNextFile();
           }
         }
@@ -661,9 +692,9 @@ void setupWebServer() {
         } else {
           uint8_t count = 8;  //sizeof(RelayPin) / sizeof(RelayPin[0]);
           for (uint8_t i = 0; i < count; i++) {
-            response->printf("%d", RelayPin[i]);
+            response->print(RelayPin[i]);
             if (i < count - 1) {
-              response->printf(",");
+              response->write(',');
             }
           }
         }
@@ -673,7 +704,19 @@ void setupWebServer() {
         for (uint8_t i = 0; i < rule_count; i++) {
           plc_rule_t *r = &rules[i];
           //response->printf("[%u] %d - %d\n",  r->relay, r->start_epoch, r->end_epoch);
-          response->printf("[#%u] %02d:%02d:%02d - %02d:%02d:%02d %s -> %s\n", r->relay, atoi(r->start_hour), atoi(r->start_minute), atoi(r->start_second), atoi(r->end_hour), atoi(r->end_minute), atoi(r->end_second), r->action, timePLC(r, true) ? "TRUE" : "FALSE");
+          response->write('['); response->write('#');
+          response->print(r->relay); response->print(F("] "));
+          { int v = atoi(r->start_hour); if (v < 10) response->write('0'); response->print(v); } response->write(':');
+          { int v = atoi(r->start_minute); if (v < 10) response->write('0'); response->print(v); } response->write(':');
+          { int v = atoi(r->start_second); if (v < 10) response->write('0'); response->print(v); }
+          response->print(F(" - "));
+          { int v = atoi(r->end_hour); if (v < 10) response->write('0'); response->print(v); } response->write(':');
+          { int v = atoi(r->end_minute); if (v < 10) response->write('0'); response->print(v); } response->write(':');
+          { int v = atoi(r->end_second); if (v < 10) response->write('0'); response->print(v); }
+          response->write(' '); response->print(r->action);
+          response->print(F(" -> "));
+          response->print(timePLC(r, true) ? "TRUE" : "FALSE");
+          response->write('\n');
         }
       } else if (request->hasParam("relay")) {
         const AsyncWebParameter *testRelay = request->getParam(0);
@@ -766,11 +809,19 @@ void setupWebServer() {
       response->print(F("{\"nvram\": [\""));
       //esp_chip_info_t chip_info;
       //esp_chip_info(&chip_info);
-      response->printf("%d.%d.%d %s", ESP_ARDUINO_VERSION_MAJOR, ESP_ARDUINO_VERSION_MINOR, ESP_ARDUINO_VERSION_PATCH, ESP.getChipModel());
+      response->print(ESP_ARDUINO_VERSION_MAJOR); response->write('.');
+      response->print(ESP_ARDUINO_VERSION_MINOR); response->write('.');
+      response->print(ESP_ARDUINO_VERSION_PATCH); response->write(' ');
+      response->print(ESP.getChipModel());
       //uint16_t major = (LFS_VERSION >> 16) & 0xFFFF; // 0x0002
       //uint16_t minor = LFS_VERSION & 0xFFFF;         // 0x0005
       //response->printf("%u.%u", major, minor);
-      response->printf("|%s|%u|%s|%u|%u\"", ESP.getSdkVersion(), LFS_VERSION, _VERSION, ESP.getFreeSketchSpace(), ESP.getFreeHeap());  //esp_himem_get_free_size()
+      response->write('|'); response->print(ESP.getSdkVersion());
+      response->write('|'); response->print(LFS_VERSION);
+      response->write('|'); response->print(_VERSION);
+      response->write('|'); response->print(ESP.getFreeSketchSpace());
+      response->write('|'); response->print(ESP.getFreeHeap());
+      response->write('"');
 #if DEBUG
       Serial.printf("Flash free: %6d bytes\r\n", ESP.getFreeSketchSpace());
       Serial.printf("DRAM free: %6d bytes\r\n", ESP.getFreeHeap());
@@ -783,7 +834,9 @@ void setupWebServer() {
             response->print(F(",\"****\""));
           }
         } else {
-          response->printf(",\"%s\"", NVRAMRead(i));
+            response->print(F(",\""));
+            response->print(NVRAMRead(i));
+            response->write('"');
         }
       }
       response->print(F("]}"));
@@ -812,7 +865,8 @@ void setupWebServer() {
       size_t len = 0;
       uint8_t n = 1, skip = 28;
 
-      len = snprintf(buf, sizeof(buf), "6;url=/");
+      strcpy(buf, "6;url=/");
+      len = 8;
       if (param0->name() == "wifi") {
         const AsyncWebParameter *modeParam = request->getParam("Mode", true);
         const AsyncWebParameter *dhcpParam = request->getParam("DHCP", true);
@@ -822,12 +876,17 @@ void setupWebServer() {
             ESP.restart();
           });
         } else if (dhcpParam->value() == "1") {
-          len += snprintf(buf + len, sizeof(buf) - len, "find.html");
+          strcpy(buf + len, "find.html");
+          len += 9;
         } else {
           const AsyncWebParameter *ipParam = request->getParam("WiFiIP", true);
           if (ipParam) {
-            len--;  // remove last character
-            len += snprintf(buf + len, sizeof(buf) - len, "http://%s", ipParam->value());
+            len--; // remove last character
+            const char *ip = ipParam->value().c_str();
+            strcpy(buf + len, "http://");
+            len += 7;
+            strcpy(buf + len, ip);
+            len += strlen(ip);
           }
         }
       } else if (param0->name() == "alert") {
@@ -853,7 +912,10 @@ void setupWebServer() {
           }
           */
           NVRAMWrite(n, request->getParam(i)->value().c_str());
-          response->printf("[%d] %s:%s\n", n, request->getParam(i)->name().c_str(), NVRAMRead(n));
+          response->write('['); response->print(n); response->print(F("] "));
+          response->print(request->getParam(i)->name().c_str());
+          response->write(':'); response->print(NVRAMRead(n));
+          response->write('\n');
           n++;
         }
       }
@@ -1111,7 +1173,7 @@ void NVRAMWrite(uint8_t address, uint32_t value) {
   EEPROM.commit();
   */
   char txt[12];
-  snprintf(txt, sizeof(txt), "%u", value);
+  utoa(value, txt, 10);
   NVRAMWrite(address, txt);
 }
 

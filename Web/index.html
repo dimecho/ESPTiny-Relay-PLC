@@ -42,17 +42,21 @@
             };
 	        document.addEventListener('DOMContentLoaded', function(event)
 	        {
-
 	        	var xhr = new XMLHttpRequest();
 				xhr.open("GET", "plc.txt", true);
 				xhr.send();
 				xhr.onload = function () {
 				    if (xhr.status === 200) {
-				        document.getElementById("plcbox").value = xhr.responseText;
+				        document.getElementById('plcbox').value = xhr.responseText;
 				        var d = new Date();
 				        var epoch = Math.floor(Date.now() / 1000);
 						var ntp = new XMLHttpRequest();
 						ntp.open('GET', 'api?&ntp=1&tz=' + getPOSIXtz() + '&epoch=' + epoch, true);
+						ntp.onload = function () {
+							if (ntp.status === 200 && ntp.responseText.length < 100) {
+								document.getElementById("ntp-time").innerHTML = ntp.responseText;
+							}
+						};
 						ntp.send();
 						var gpio = new XMLHttpRequest();
 						gpio.open('GET', 'api?gpio=1', true);
@@ -72,6 +76,68 @@
 				    notify('', 'Request error', 'danger');
 				};
         	});
+        	function runPLCwTime()
+			{
+				var plcText = document.getElementById("plcbox").value;
+				var lines = plcText.split("\n");
+				var now = new Date();
+				var year = now.getFullYear();
+				var month = now.getMonth();
+				var day = now.getDate();
+				var index = 0;
+
+				function sendNext()
+				{
+					while (index < lines.length) {
+						var line = lines[index++].trim();
+						if (line === "" || line.startsWith(";")) continue;
+
+						var parts = line.split(":");
+						if (parts.length < 10) continue;
+
+						var timeField = parts.slice(4, parts.length - 2).join(":").trim();
+						var startTime = timeField.split("-")[0].trim();
+						if (!startTime) continue;
+
+						var tp = startTime.split(":");
+						if (tp.length < 3) continue;
+
+						var d = new Date(year, month, day, +tp[0], +tp[1], +tp[2]);
+						var epoch = Math.floor(d.getTime() / 1000);
+						notify('', d, 'success');
+
+						var ntp = new XMLHttpRequest();
+						ntp.open('GET', 'api?&ntp=1&epoch=' + epoch, true);
+						ntp.onload = function () {
+							var xhr = new XMLHttpRequest();
+							xhr.open("GET", "api?plc=1", true);
+							xhr.send();
+							xhr.onload = function () {
+								if (xhr.status === 200) {
+									if (xhr.responseText == 'Locked') {
+										RelayLogin();
+									} else {
+										setTimeout(sendNext, 1000);
+									}
+								} else {
+									notify('', 'Failed to run PLC', 'danger');
+								}
+							};
+							xhr.onerror = function () {
+								notify('', 'Request error', 'danger');
+							};
+						};
+						ntp.send();
+						return;
+					}
+					notify('', 'Resetting Local Time', 'warning');
+					var epoch = Math.floor(Date.now() / 1000);
+					var ntp = new XMLHttpRequest();
+					ntp.open('GET', 'api?&ntp=1&epoch=' + epoch, true);
+					ntp.send();
+				}
+				sendNext();
+			}
         	function runPLC()
 			{
 				var xhr = new XMLHttpRequest();
@@ -268,9 +334,12 @@ Relay6 : *     : *       : *       : 00:00:00-23:59:00 : OFF     : PNP
 Relay7 : 6     : 10-20   : WED     : 06:00:00-08:00:00 : ON      : PNP
 				</pre>
 			</div>
+			<div class="bg-gray-100 dark:bg-gray-500 border border-gray-800 dark:border-white rounded-lg p-4 text-sm text-gray-800 dark:text-white overflow-auto" id="ntp-time">
+			</div>
 			<div class="gap-4 w-full max-w-4xl">
     			<div class="text-lg font-semibold text-gray-800 dark:text-white">
-    				<button onclick="runPLC()" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded transition-colors duration-200 w-full mt-4">Run PLC</button>
+    				<button onclick="runPLC()" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded transition-colors duration-200 w-full mt-4">Run PLC (Current Time)</button>
+    				<button onclick="runPLCwTime()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-6 rounded transition-colors duration-200 w-full mt-4">Run PLC (Simulate Time)</button>
     				<form id="plcform" method="POST" action="plc.txt">
 	  					<textarea name="plcbox" id="plcbox" class="w-full h-64 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 mt-4" placeholder="Enter PLC data here..."></textarea>
 			    		<button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded transition-colors duration-200 w-full mt-4">Save PLC</button>
