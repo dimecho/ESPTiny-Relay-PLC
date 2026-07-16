@@ -6,7 +6,11 @@ Automatic 8-channel relay control - PLC style.
 
 - WiFi (Web Interface) :electric_plug: [View Demo](https://dimecho.github.io/ESPTiny-Relay-PLC/Web/index.html)
 - Battery Deep Sleep (~10μA)
-- Modular PCB (ESP32, DS1307, TP4056)
+- Modular PCB:
+    - [x] ESP32 S2-Mini (Main Board)
+    - [x] DS1307 (External Clock)
+    - [x] TP4056 (Lithium Charger)
+    - [x] XH-M609 (Low Voltage Cutoff)
 
 <p align="center">
 
@@ -69,7 +73,8 @@ File System (Web Interface)
 
 1. Run "littlefs-build-mac" (Mac) or "littlefs-build-win.ps1" (Windows) to build. LittleFS Binary: `build/flash-littlefs.bin`
 
-**Note:** Files must be GZIP'ed. HTTP server sends compressed code to the Browser for decompression.
+> [!CAUTION]
+> Files must be GZIP'ed. HTTP server sends compressed code to the Browser for decompression.
 ```
 response->addHeader("Content-Encoding", "gzip");
 ```
@@ -79,7 +84,8 @@ Flashing Options:
 1. Wireless - Web Browser [http://192.168.8.8/update](http://192.168.8.8/update)
 2. USB - [Arduino LittleFS Plugin](https://github.com/lorol/arduino-esp32littlefs-plugin)
 
-**Note:** ESP32 S2-Mini must have resistor (~10K) betweeen pin EN -> 3.3V for Web updates to work.
+> [!IMPORTANT]
+> ESP32 S2-Mini must have resistor (~10K) betweeen pin EN -> 3.3V for Web updates to work.
 
 ## License
 
