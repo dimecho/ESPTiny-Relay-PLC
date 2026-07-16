@@ -28,12 +28,12 @@ Automatic 8-channel relay control - PLC style.
 
 ; Examples:
 
-Relay1 : *     : *       : MON-FRI : 08:00-12:00 : ON      : PNP
-Relay2 : *     : *       : SAT-SUN : 12:00-13:00 : OFF     : PNP
-Relay4 : 1,2,3 : *       : *       : 09:00-17:00 : ON      : PNP
-Relay5 : *     : 1,15,30 : *       : 18:00-20:00 : OFF     : PNP
-Relay6 : *     : *       : *       : 00:00-23:59 : OFF     : PNP
-Relay7 : 6     : 10-20   : WED     : 06:00-08:00 : ON      : PNP
+Relay1 : *     : *       : MON-FRI : 08:00:00-12:00:00 : ON      : PNP
+Relay2 : *     : *       : SAT-SUN : 12:00:00-13:00:00 : OFF     : PNP
+Relay4 : 1,2,3 : *       : *       : 09:00:00-17:00:00 : ON      : PNP
+Relay5 : *     : 1,15,30 : *       : 18:00:00-20:00:00 : OFF     : PNP
+Relay6 : *     : *       : *       : 00:00:00-23:59:00 : OFF     : PNP
+Relay7 : 6     : 10-20   : WED     : 06:00:00-08:00:00 : ON      : PNP
 ```
 
 ## Download

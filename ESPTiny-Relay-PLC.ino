@@ -129,7 +129,7 @@ int rule_count = 0;
 #define _NETWORK_DNS 14
 //#define _RESERVED 15
 //#define _RESERVED 16
-//#define _RESERVED 17
+#define _MOSFET_SUPPORT 17
 #define _GPIO_ARRAY 18
 #define _DEEP_SLEEP 19
 #define _EMAIL_ALERT 20
@@ -159,7 +159,7 @@ const int NVRAM_Map[] = {
   496,  //_NETWORK_DNS 64
   512,  //_RESERVED 16
   528,  //_RESERVED 16
-  560,  //_RESERVED 16
+  560,  //_MOSFET_SUPPORT 16
   576,  //_GPIO_ARRAY 48
   624,  //_DEEP_SLEEP 32
   656,  //_EMAIL_ALERT 64
@@ -182,6 +182,7 @@ char WIRELESS_SSID[16] = "Relay";
 char WIRELESS_USERNAME[] = "";
 char WIRELESS_PASSWORD[] = "";
 uint8_t LOG_ENABLE = 0;  //data logger (enable/disable)
+uint8_t MOSFET_SUPPORT = 0;
 //uint8_t NETWORK_DHCP = 0;
 char NETWORK_IP[64] = "192.168.8.8";  //IPv4
 char NETWORK_SUBNET[64] = "255.255.255.0";
@@ -259,6 +260,7 @@ void setup() {
     NVRAMWrite(_WIRELESS_USERNAME, "");
     NVRAMWrite(_WIRELESS_PASSWORD, "");
     NVRAMWrite(_LOG_ENABLE, "0");
+    NVRAMWrite(_MOSFET_SUPPORT, "0");
     NVRAMWrite(_GPIO_ARRAY, GPIO_ARRAY);
     //==========
     NVRAMWrite(_NETWORK_DHCP, "0");
@@ -284,6 +286,7 @@ void setup() {
     loadRelayGPIO();
     DEEP_SLEEP = atoi(NVRAMRead(_DEEP_SLEEP));
     LOG_ENABLE = atoi(NVRAMRead(_LOG_ENABLE));
+    MOSFET_SUPPORT = atoi(NVRAMRead(_MOSFET_SUPPORT));
     strncpy(ALERTS, NVRAMRead(_ALERTS), sizeof(ALERTS));
     strncpy(RELAY_NAME, NVRAMRead(_RELAY_NAME), sizeof(RELAY_NAME));
   }
@@ -698,6 +701,8 @@ void setupWebServer() {
             }
           }
         }
+      } else if (request->hasParam("mosfet")) {
+        response->print(MOSFET_SUPPORT);
       } else if (request->hasParam("plc")) {
         setupPLC();
         applyPLC();
@@ -746,6 +751,11 @@ void setupWebServer() {
     AsyncResponseStream *response = request->beginResponseStream(FPSTR(text_plain));
 
     if (strlen(DEMO_PASSWORD) == 0) {
+      if (request->hasParam("mosfet", true)) {  // MOSFET support
+        MOSFET_SUPPORT = 1;
+      } else {
+        MOSFET_SUPPORT = 0;
+      }
       if (request->hasParam("plcbox", true)) {  // true = POST body
         savePLC(request->getParam("plcbox", true)->value());
       }
@@ -969,6 +979,8 @@ void setupWebServer() {
         response->print(F("Update Success! ..."));
         response->print("\n\n");
         response->print(plcProgramming);
+        response->print("\nMOSFET: ");
+        response->print(MOSFET_SUPPORT);
       }
       response->addHeader(FPSTR(refresh_http), "8;url=/");
       bthread.detach();
@@ -1122,16 +1134,18 @@ void turnNPNorPNP(const uint8_t pin, const uint8_t state, const uint8_t transist
 #if DEBUG
   Serial.printf("[%u]", state);
 #endif
-  if (transistor == 1) {
+  pinMode(pin, OUTPUT);
+  if (transistor == 1) { // PNP
     digitalWrite(pin, !state);
-    if (state == 0) {
-      pinMode(pin, INPUT_PULLUP);  // Float the pin for PNP off (true high-impedance)
-    } else {
-      pinMode(pin, OUTPUT);
-    }
-  } else {
-    pinMode(pin, OUTPUT);
+  } else { //NPN
     digitalWrite(pin, state);
+  }
+  if(MOSFET_SUPPORT == 1 && state == 0) {
+    if(transistor == 1) { //PNP
+      pinMode(pin, INPUT_PULLUP);  //True high-impedance via internal 40k - May affect deep sleep power consumption - internal pull-ups can leak current
+    }else{ //NPN Gate Discharge
+      pinMode(pin, INPUT_PULLDOWN);  //Internal 40k pulldown (ESP32 only)
+    }
   }
 }
 
@@ -1743,6 +1757,7 @@ void savePLC(String plc) {
     file.print(plc);
     file.close();
   }
+  NVRAMWrite(_MOSFET_SUPPORT, MOSFET_SUPPORT);
 }
 
 void setupPLC() {

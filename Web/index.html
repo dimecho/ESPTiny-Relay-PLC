@@ -42,6 +42,7 @@
             };
 	        document.addEventListener('DOMContentLoaded', function(event)
 	        {
+	        	document.getElementById('mosfet').checked = false;
 	        	var xhr = new XMLHttpRequest();
 				xhr.open("GET", "plc.txt", true);
 				xhr.send();
@@ -65,6 +66,16 @@
 					        if (gpio.status == 200) {
 					        	if(gpio.responseText != 'Locked') {
 									document.getElementById("gpio-array").value = gpio.responseText;
+							    }
+					        }
+					    };
+					    var mosfet = new XMLHttpRequest();
+						mosfet.open('GET', 'api?mosfet=1', true);
+					    mosfet.send();
+					    mosfet.onload = function() {
+					        if (mosfet.status == 200) {
+					        	if(mosfet.responseText == '1') {
+									document.getElementById('mosfet').checked = true;
 							    }
 					        }
 					    };
@@ -342,6 +353,14 @@ Relay7 : 6     : 10-20   : WED     : 06:00:00-08:00:00 : ON      : PNP
     				<button onclick="runPLCwTime()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-6 rounded transition-colors duration-200 w-full mt-4">Run PLC (Simulate Time)</button>
     				<form id="plcform" method="POST" action="plc.txt">
 	  					<textarea name="plcbox" id="plcbox" class="w-full h-64 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 mt-4" placeholder="Enter PLC data here..."></textarea>
+	  					<label class="flex items-center gap-2 mt-4 text-gray-800 dark:text-white">
+							<input type="checkbox" name="mosfet" id="mosfet" value="1" class="w-5 h-5"> Enable MOSFET Support
+							<span class="relative group cursor-help">&#63;&#x20DD;
+							  <span class="absolute hidden group-hover:block bg-black text-white text-xs rounded p-2 w-64 bottom-full left-1/2 -translate-x-1/2 mb-1 z-10">
+							    Discharge N-Channel 'NPN' or Pull-Up P-Channel 'PNP' for MOSFET turn off
+							  </span>
+							</span>
+						</label>
 			    		<button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded transition-colors duration-200 w-full mt-4">Save PLC</button>
 			    	</form>
 				</div>
