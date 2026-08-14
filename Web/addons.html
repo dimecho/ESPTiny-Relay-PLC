@@ -4,12 +4,36 @@
         <title>tiny relay</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" type="text/css" href="css/tailwind.css">
+        <link rel="stylesheet" type="text/css" href="css/style.css">
         <script defer src="js/common.js"></script>
         <script>
         var pnpslider, adcslider;
         document.addEventListener('DOMContentLoaded', function(event)
         {
+            var nvram = new XMLHttpRequest();
+            nvram.responseType = 'json';
+            nvram.open('GET', 'nvram.json', true);
+            nvram.send();
+            nvram.onload = function(e) {
+                if(nvram.response != undefined) {
+                    if(nvram.response['nvram'][PLC_PASSWORD] != '')
+                    {
+                        PLCLOCK = true;
+                    }
+                }
+            }
+            document.getElementById('browseAddon').addEventListener('click', function() {
+                if (PLCLOCK) {
+                    RelayLogin();
+                } else {
+                    document.getElementById('fileAddon').click();
+                }
+            });
+            document.getElementById('fileAddon').addEventListener('change', function() {
+                document.getElementById('formAddon').setAttribute('action', 'http://' + window.location.hostname + '/addons'); // force HTTP
+                progressTimer(80, 0);
+                document.getElementById('formAddon').submit();
+            });
             var addons = new XMLHttpRequest();
             addons.open('GET', 'api?addons=1', true);
             addons.send();
@@ -19,17 +43,16 @@
                     addons.responseText.split('\n').forEach(function (item) {
                         //console.log(item);
                         if(item != "") {
-                            var listremovediv = document.createElement('div');
+                            var disabled = item.toLowerCase().endsWith('.disabled');
+                            var listitemdiv = document.createElement('div');
+                            listitemdiv.classList.add('addon-item');
+                            if(disabled) {
+                                listitemdiv.classList.add('addon-disabled');
+                            }
+
                             var listremovebutton = document.createElement('button');
                             listremovebutton.id = item.toLowerCase();
-                            listremovebutton.classList.add(
-                              'py-2',
-                              'bg-red-500',
-                              'hover:bg-red-600',
-                              'text-white',
-                              'w-full',
-                              'rounded'
-                            );
+                            listremovebutton.classList.add('btn', 'btn-red');
                             listremovebutton.textContent = 'Remove';
                             listremovebutton.addEventListener('click', function() {
                                 var a = new XMLHttpRequest();
@@ -43,50 +66,61 @@
                                 }
                                 a.send();
                             });
-                            listremovediv.appendChild(listremovebutton);
+                            listitemdiv.appendChild(listremovebutton);
 
                             var listlabeldiv = document.createElement('div');
-                            listlabeldiv.textContent = item.toUpperCase();
-                            listlabeldiv.classList.add(
-                              'py-2',
-                              'border',
-                              'border-gray-800',
-                              'dark:border-white',
-                              'text-gray-800',
-                              'dark:text-white',
-                              'w-full',
-                              'rounded',
-                              'text-center'
-                            );
-                            var listrundiv = document.createElement('div');
-                            var listrunbutton = document.createElement('button');
-                            listrunbutton.id = item.toLowerCase();
-                            listrunbutton.classList.add(
-                              'py-2',
-                              'bg-green-500',
-                              'hover:bg-green-600',
-                              'text-white',
-                              'w-full',
-                              'rounded'
-                            );
-                            listrunbutton.textContent = 'Run';
-                            listrunbutton.addEventListener('click', function() {
-                                var a = new XMLHttpRequest();
-                                a.open('GET', 'api?&addons=1&run=' + this.id, true);
-                                a.onload = function(e) {
-                                    if(a.response == 'OK') {
-                                        notify('', this.id + ' Executed', 'success');
-                                    }else{
-                                        notify('', 'Error ' + this.id, 'danger');
-                                    }
-                                }
-                                a.send();
-                            });
-                            listrundiv.appendChild(listrunbutton);
+                            listlabeldiv.textContent = disabled ? item.toUpperCase() + ' (CRASHED)' : item.toUpperCase();
+                            listlabeldiv.classList.add('addon-label', 'grow');
+                            listitemdiv.appendChild(listlabeldiv);
 
-                            list.appendChild(listremovediv);
-                            list.appendChild(listlabeldiv);
-                            list.appendChild(listrundiv);
+                            if(disabled) {
+                                var listenablebutton = document.createElement('button');
+                                listenablebutton.id = item.toLowerCase();
+                                listenablebutton.classList.add('btn', 'btn-green');
+                                listenablebutton.textContent = 'Enable';
+                                listenablebutton.addEventListener('click', function() {
+                                    var a = new XMLHttpRequest();
+                                    a.open('GET', 'api?&addons=1&enable=' + this.id, true);
+                                    a.onload = function(e) {
+                                        if(a.response == 'OK') {
+                                            location.reload();
+                                        }else{
+                                            notify('', 'Error ' + this.id, 'danger');
+                                        }
+                                    }
+                                    a.send();
+                                });
+                                listitemdiv.appendChild(listenablebutton);
+                            } else {
+                                var listrunbutton = document.createElement('button');
+                                listrunbutton.id = item.toLowerCase();
+                                listrunbutton.classList.add('btn', 'btn-green');
+                                listrunbutton.textContent = 'Run';
+                                listrunbutton.addEventListener('click', function() {
+                                    var a = new XMLHttpRequest();
+                                    var id = this.id;
+                                    a.open('GET', 'api?&addons=1&run=' + id, true);
+                                    a.onload = function(e) {
+                                        var res = a.response;
+                                        if(res == 'RUNNING') {
+                                            notify('', id + ' Running', 'success');
+                                        }else if(res == 'BUSY') {
+                                            notify('', id + ' Busy (already running)', 'warning');
+                                        }else if(res == 'OK') {
+                                            notify('', id + ' Executed', 'success');
+                                        }else if(res == 'Locked') {
+                                            PLCLOCK = true;
+                                            RelayLogin();
+                                        }else{
+                                            notify('', 'Error ' + res, 'danger');
+                                        }
+                                    }
+                                    a.send();
+                                });
+                                listitemdiv.appendChild(listrunbutton);
+                            }
+
+                            list.appendChild(listitemdiv);
                         }
                     });
                 }
@@ -94,35 +128,36 @@
         });
         </script>
     </head>
-    <body class="bg-gray-100 dark:bg-gray-600 flex justify-center items-center min-h-screen p-4">
-        <div class="fixed top-0 right-0 p-3 z-[2000]" id="notify"></div>
-        <div class="fixed inset-0 bg-black opacity-50 hidden" id="modal-backdrop"></div>
+    <body>
+        <div class="modal-backdrop hidden" id="modal-backdrop"></div>
 
-        <div class="w-full max-w-4xl flex flex-col gap-4">
-            <div class="flex flex-row gap-4 w-full text-lg font-semibold text-gray-800 dark:text-white">
-                <div class="grid grid-cols-1 gap-2 flex-1">
-                    <button id="wireless" class="bg-gray-500 py-2 px-4 rounded hover:bg-gray-600 transition-colors duration-200" justify-center onclick="window.location.href='index.html'"><<</button>
-                </div>
-                <div class="grid grid-cols-1 gap-2 flex-1">
-                    <button id="test-relay1" class="bg-green-500 py-2 px-4 rounded hover:bg-green-600 transition-colors duration-200" justify-center onclick="window.location.href='addons.html'">Addons</button>
-                </div>
-                <div class="grid grid-cols-1 gap-2 flex-1">
-                    <button id="test-relay1" class="bg-orange-500 py-2 px-4 rounded hover:bg-orange-600 transition-colors duration-200" justify-center onclick="window.location.href='firmware.html'">Firmware</button>
-                </div>
+        <div class="page">
+            <div class="nav">
+                <button class="btn btn-gray" onclick="window.location.href='index.html'"><<</button>
+                <button class="btn btn-green" onclick="window.location.href='addons.html'">Addons</button>
+                <button class="btn btn-orange" onclick="window.location.href='firmware.html'">Firmware</button>
             </div>
-            <div class="bg-gray-100 dark:bg-gray-500 border border-gray-800 dark:border-white rounded-lg p-4 text-gray-800 dark:text-white">
-                <div class="grid grid-cols-3 lg:grid-cols-3 gap-4 m-4" id="addonsList"></div>
+            <div class="card">
+                <div id="addonsList"></div>
+            </div>
+            <div class="card">
+                <form method="POST" action="addons" enctype="multipart/form-data" id="formAddon">
+                    <input type="file" accept=".bin" name="addon" id="fileAddon" class="hidden">
+                    <input type="submit" class="hidden">
+                </form>
+                <button class="btn btn-accent btn-block" type="button" id="browseAddon">Upload Addon</button>
             </div>
         </div>
-        <div class="fixed inset-0 flex items-center justify-center hidden modal" id="demo-lock">
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg w-full max-w-md mx-auto border border-gray-600 dark:border-gray-300">
-                <div class="flex modal-header justify-between items-center border-b border-gray-600 dark:border-gray-300">
-                    <h5 class="text-lg font-semibold text-gray-800 dark:text-white">Login</h5>
-                    <button id="close-modal" class="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300 focus:outline-none text-2xl" onclick="hideModal(this)">&times;</button>
+        <div id="notify"></div>
+        <div class="modal hidden" id="demo-lock">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <h5>Login</h5>
+                    <button class="modal-close" onclick="hideModal(this)">&times;</button>
                 </div>
                 <form method="POST" action="login" id="demo-lock-form">
-                    <input type="password" id="DemoPassword" name="password" class="border border-gray-300 dark:border-gray-600 focus:ring focus:ring-green-500 rounded-md p-2 w-full" placeholder="Password" required>
-                    <button type="submit" class="bg-green-500 hover:bg-green-600 text-white rounded w-full px-4 py-2 mt-4" id="demo-lock-ok">Login</button>
+                    <input type="password" id="DemoPassword" name="password" class="input" placeholder="Password" required>
+                    <button type="submit" class="btn btn-green btn-block mt-4" id="demo-lock-ok">Login</button>
                 </form>
             </div>
         </div>

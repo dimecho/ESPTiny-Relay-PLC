@@ -4,7 +4,7 @@
         <title>tiny relay</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" type="text/css" href="css/tailwind.css">
+        <link rel="stylesheet" type="text/css" href="css/style.css">
         <script defer src="js/common.js"></script>
         <script>
         	var nvram = new XMLHttpRequest();
@@ -20,17 +20,7 @@
 			            espboard.src = 'img/esp32-relay-x1.svg';
 			            var testbutton = document.createElement('button');
 			            testbutton.textContent = 'Test Relay 1';
-                        testbutton.classList.add(
-                    	'bg-green-500',
-                    	'py-2',
-                    	'px-4',
-                    	'rounded',
-                    	'hover:bg-green-600',
-                    	'transition-colors',
-                    	'duration-200',
-                    	'justify-center',
-                    	'm-6'
-                        );
+                        testbutton.classList.add('btn', 'btn-green', 'm-6');
 						testbutton.onclick = function(e) {
 						    testRelay(this,1);
 						};
@@ -170,13 +160,13 @@
 		        				var elementId = "test-relay" + relayNumber;
 								var relayElement = document.getElementById(elementId);
 			        			if (line.includes("TRUE")) {
-					                testRelayVisual(relayElement, relayNumber, 1);
-					            }else{
-					            	if(relayElement.textContent == 'Stop #' + relayNumber) {
+				        			testRelayVisual(relayElement, relayNumber, 1);
+				        		}else{
+				        			if(relayElement.textContent == 'Stop #' + relayNumber) {
 										testRelay(relayElement, relayNumber);
 									}
-					            }
-				        	}
+				        		}
+			        		}
 			        	}
 				    } else {
 				        notify('', 'Failed to run PLC', 'danger');
@@ -189,24 +179,12 @@
 			function testRelayVisual(obj, n, action)
 			{
         		if(action == 1){
-        			obj.classList.remove(
-                      'bg-green-500',
-                      'hover:bg-green-600'
-                    );
-					obj.classList.add(
-                      'bg-red-500',
-                      'hover:bg-red-600'
-                    );
-                     obj.textContent = obj.textContent.replace('Test','Stop');
+        			obj.classList.remove('btn-green');
+					obj.classList.add('btn-red');
+                    obj.textContent = obj.textContent.replace('Test','Stop');
         		}else{
-        			obj.classList.remove(
-                      'bg-red-500',
-                      'hover:bg-red-600'
-                    );
-					obj.classList.add(
-                      'bg-green-500',
-                      'hover:bg-green-600'
-                    );
+        			obj.classList.remove('btn-red');
+					obj.classList.add('btn-green');
                     obj.textContent = obj.textContent.replace('Stop','Test');
         		}
 			}
@@ -260,70 +238,54 @@
 			}
         </script>
     </head>
-    <body class="bg-gray-100 dark:bg-gray-600 flex justify-center items-center min-h-screen p-4">
-		<div class="fixed top-0 right-0 p-3 z-[2000]" id="notify"></div>
-		<div class="fixed inset-0 bg-black opacity-50 hidden" id="modal-backdrop"></div>
-	  	<div class="w-full max-w-4xl flex flex-col gap-4">
-	  		<div class="flex flex-row gap-4 w-full text-lg font-semibold text-gray-800 dark:text-white">
-			    <div class="grid grid-cols-1 gap-2 flex-1">
-			        <button id="wireless" class="bg-blue-500 py-2 px-4 rounded hover:bg-blue-600 transition-colors duration-200" justify-center onclick="window.location.href='wireless.html'">Wireless</button>
-			    </div>
-			    <div class="grid grid-cols-1 gap-2 flex-1">
-					<button id="test-relay1" class="bg-green-500 py-2 px-4 rounded hover:bg-green-600 transition-colors duration-200" justify-center onclick="window.location.href='addons.html'">Addons</button>
-			    </div>
-			    <div class="grid grid-cols-1 gap-2 flex-1">
-					<button id="test-relay1" class="bg-orange-500 py-2 px-4 rounded hover:bg-orange-600 transition-colors duration-200" justify-center onclick="window.location.href='firmware.html'">Firmware</button>
-			    </div>
+    <body>
+		<div id="notify"></div>
+		<div class="modal-backdrop hidden" id="modal-backdrop"></div>
+	  	<div class="page">
+	  		<div class="nav">
+			    <button id="wireless" class="btn btn-accent" onclick="window.location.href='wireless.html'">Wireless</button>
+				<button id="test-relay1" class="btn btn-green" onclick="window.location.href='addons.html'">Addons</button>
+				<button id="test-relay1" class="btn btn-orange" onclick="window.location.href='firmware.html'">Firmware</button>
 		    </div>
-	  		<div class="flex flex-row gap-4">
-	  			<center>
-	  			<div class="bg-gray-100 dark:bg-gray-500 border border-gray-800 dark:border-white rounded-lg p-4 text-lg font-semibold text-gray-800 dark:text-white">
-	  				<img id="esp32-board">
-	  			</div>
-	  			</center>
+	  		<div class="card card-center">
+	  			<img id="esp32-board" alt="ESP32 board">
 	  		</div>
-	  		<div class="bg-gray-100 dark:bg-gray-500 border border-gray-800 dark:border-white rounded-lg p-4">
-			  	<div class="flex flex-row gap-4 w-full text-lg font-semibold text-gray-800 dark:text-white">
-				    <div class="w-1/4 flex items-center">
-				      <span>GPIO Array:</span>
-				    </div>
-				    <div class="w-2/4">
-						<input type="text" id="gpio-array" class="border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring focus:ring-blue-200 w-full" placeholder="1,2,4,6,7,10,13,14">
-				    </div>
-				    <div class="w-1/4">
-				      	<button onclick="saveGPIO()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-6 rounded transition-colors duration-200">Save GPIO</button>
-				    </div>
+	  		<div class="card">
+			  	<div class="row">
+				    <span class="label grow">GPIO Array:</span>
+					<input type="text" id="gpio-array" class="input grow" placeholder="1,2,4,6,7,10,13,14">
+				    <button onclick="saveGPIO()" class="btn btn-accent">Save GPIO</button>
 			  	</div>
 			</div>
-	  		<div id="8-channel-relay" class="bg-gray-100 dark:bg-gray-500 border border-gray-800 dark:border-white rounded-lg p-4">
-			    <div class="flex flex-row lg:flex-col sm:flex-row gap-4 w-full text-lg font-semibold text-gray-800 dark:text-white">
-				    <div class="grid grid-cols-1 lg:grid-cols-8 gap-2 flex-1">
-					 	<div class="justify-self-center self-center order-8 lg:order-1">1</div>
-				      	<div class="justify-self-center self-center order-7 lg:order-2">2</div>
-				      	<div class="justify-self-center self-center order-6 lg:order-3">3</div>
-				      	<div class="justify-self-center self-center order-5 lg:order-4">4</div>
-				      	<div class="justify-self-center self-center order-4 lg:order-5">5</div>
-				      	<div class="justify-self-center self-center order-3 lg:order-6">6</div>
-				      	<div class="justify-self-center self-center order-2 lg:order-7">7</div>
-				      	<div class="justify-self-center self-center order-1 lg:order-8">8</div>
+	  		<div id="8-channel-relay" class="card">
+			    <div class="relay-board">
+				    <div class="relay-side">
+					 	<div class="relay-num">1</div>
+				      	<div class="relay-num">2</div>
+				      	<div class="relay-num">3</div>
+				      	<div class="relay-num">4</div>
+				      	<div class="relay-num">5</div>
+				      	<div class="relay-num">6</div>
+				      	<div class="relay-num">7</div>
+				      	<div class="relay-num">8</div>
 				    </div>
-				    <div class="grid grid-cols-1 flex-1">
-				        <img src="img/8-channel-relay.svg" class="h-full w-full -rotate-90 lg:rotate-0 transition-transform duration-300">
+				    <div class="relay-image">
+				        <img src="img/8-channel-relay.svg" alt="8 channel relay board">
 				    </div>
-				    <div class="grid grid-cols-1 lg:grid-cols-8 gap-2 flex-1">
-						<button id="test-relay1" onclick="testRelay(this,1)" class="bg-green-500 py-2 px-4 rounded hover:bg-green-600 transition-colors duration-200 justify-center order-8 lg:order-1">Test #1</button>
-					    <button id="test-relay2" onclick="testRelay(this,2)" class="bg-green-500 py-2 px-4 rounded hover:bg-green-600 transition-colors duration-200 justify-center order-7 lg:order-2">Test #2</button>
-					    <button id="test-relay3" onclick="testRelay(this,3)" class="bg-green-500 py-2 px-4 rounded hover:bg-green-600 transition-colors duration-200 justify-center order-6 lg:order-3">Test #3</button>
-					    <button id="test-relay4" onclick="testRelay(this,4)" class="bg-green-500 py-2 px-4 rounded hover:bg-green-600 transition-colors duration-200 justify-center order-5 lg:order-4">Test #4</button>
-					    <button id="test-relay5" onclick="testRelay(this,5)" class="bg-green-500 py-2 px-4 rounded hover:bg-green-600 transition-colors duration-200 justify-center order-4 lg:order-5">Test #5</button>
-					    <button id="test-relay6" onclick="testRelay(this,6)" class="bg-green-500 py-2 px-4 rounded hover:bg-green-600 transition-colors duration-200 justify-center order-3 lg:order-6">Test #6</button>
-					    <button id="test-relay7" onclick="testRelay(this,7)" class="bg-green-500 py-2 px-4 rounded hover:bg-green-600 transition-colors duration-200 justify-center order-2 lg:order-7">Test #7</button>
-					    <button id="test-relay8" onclick="testRelay(this,8)" class="bg-green-500 py-2 px-4 rounded hover:bg-green-600 transition-colors duration-200 justify-center order-1 lg:order-8">Test #8</button>
+				    <div class="relay-side">
+						<button id="test-relay1" onclick="testRelay(this,1)" class="btn btn-green btn-sm">Test #1</button>
+					    <button id="test-relay2" onclick="testRelay(this,2)" class="btn btn-green btn-sm">Test #2</button>
+					    <button id="test-relay3" onclick="testRelay(this,3)" class="btn btn-green btn-sm">Test #3</button>
+					    <button id="test-relay4" onclick="testRelay(this,4)" class="btn btn-green btn-sm">Test #4</button>
+					    <button id="test-relay5" onclick="testRelay(this,5)" class="btn btn-green btn-sm">Test #5</button>
+					    <button id="test-relay6" onclick="testRelay(this,6)" class="btn btn-green btn-sm">Test #6</button>
+					    <button id="test-relay7" onclick="testRelay(this,7)" class="btn btn-green btn-sm">Test #7</button>
+					    <button id="test-relay8" onclick="testRelay(this,8)" class="btn btn-green btn-sm">Test #8</button>
 				    </div>
 			    </div>
 			</div>
-			<div class="bg-gray-100 dark:bg-gray-500 border border-gray-800 dark:border-white rounded-lg p-4 text-sm text-gray-800 dark:text-white overflow-auto">
-			    	<pre>
+			<div class="card">
+			    	<pre class="schedule">
 ; PLC Schedule format
 ; Syntax: <Relay> : <Month> : <MonthDay> : <Weekday> : <Time> : <Action> : <Type>
 
@@ -345,36 +307,34 @@ Relay6 : *     : *       : *       : 00:00:00-23:59:00 : OFF     : PNP
 Relay7 : 6     : 10-20   : WED     : 06:00:00-08:00:00 : ON      : PNP
 				</pre>
 			</div>
-			<div class="bg-gray-100 dark:bg-gray-500 border border-gray-800 dark:border-white rounded-lg p-4 text-sm text-gray-800 dark:text-white overflow-auto" id="ntp-time">
+			<div class="card" id="ntp-time">
 			</div>
-			<div class="gap-4 w-full max-w-4xl">
-    			<div class="text-lg font-semibold text-gray-800 dark:text-white">
-    				<button onclick="runPLC()" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded transition-colors duration-200 w-full mt-4">Run PLC (Current Time)</button>
-    				<button onclick="runPLCwTime()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-6 rounded transition-colors duration-200 w-full mt-4">Run PLC (Simulate Time)</button>
-    				<form id="plcform" method="POST" action="plc.txt">
-	  					<textarea name="plcbox" id="plcbox" class="w-full h-64 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 mt-4" placeholder="Enter PLC data here..."></textarea>
-	  					<label class="flex items-center gap-2 mt-4 text-gray-800 dark:text-white">
-							<input type="checkbox" name="mosfet" id="mosfet" value="1" class="w-5 h-5"> Enable MOSFET Support
-							<span class="relative group cursor-help">&#63;&#x20DD;
-							  <span class="absolute hidden group-hover:block bg-black text-white text-xs rounded p-2 w-64 bottom-full left-1/2 -translate-x-1/2 mb-1 z-10">
-							    Discharge N-Channel 'NPN' or Pull-Up P-Channel 'PNP' for MOSFET turn off
-							  </span>
-							</span>
-						</label>
-			    		<button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded transition-colors duration-200 w-full mt-4">Save PLC</button>
-			    	</form>
-				</div>
-	  		</div>
-		</div>
-		<div class="fixed inset-0 flex items-center justify-center hidden modal" id="demo-lock">
-		    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg w-full max-w-md mx-auto border border-gray-600 dark:border-gray-300">
-		        <div class="flex modal-header justify-between items-center border-b border-gray-600 dark:border-gray-300">
-		        	<h5 class="text-lg font-semibold text-gray-800 dark:text-white">Login</h5>
-		            <button id="close-modal" class="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300 focus:outline-none text-2xl" onclick="hideModal(this)">&times;</button>
+			<div>
+    			<button onclick="runPLC()" class="btn btn-green btn-block mt-4">Run PLC (Current Time)</button>
+    			<button onclick="runPLCwTime()" class="btn btn-yellow btn-block mt-4">Run PLC (Simulate Time)</button>
+    			<form id="plcform" method="POST" action="plc.txt">
+  					<textarea name="plcbox" id="plcbox" class="input mt-4" placeholder="Enter PLC data here..."></textarea>
+  					<label class="check-row">
+						<input type="checkbox" name="mosfet" id="mosfet" value="1"> Enable MOSFET Support
+						<span class="tooltip-wrap">&#63;&#x20DD;
+						  <span class="tooltip">
+						    Discharge N-Channel 'NPN' or Pull-Up P-Channel 'PNP' for MOSFET turn off
+						  </span>
+						</span>
+					</label>
+		    		<button type="submit" class="btn btn-accent btn-block">Save PLC</button>
+		    	</form>
+			</div>
+	  	</div>
+		<div class="modal hidden" id="demo-lock">
+		    <div class="modal-card">
+		        <div class="modal-header">
+		        	<h5>Login</h5>
+		            <button class="modal-close" onclick="hideModal(this)">&times;</button>
 		        </div>
 		        <form method="POST" action="login" id="demo-lock-form">
-		            <input type="password" id="DemoPassword" name="password" class="border border-gray-300 dark:border-gray-600 focus:ring focus:ring-green-500 rounded-md p-2 w-full" placeholder="Password" required>
-		        	<button type="submit" class="bg-green-500 hover:bg-green-600 text-white rounded w-full px-4 py-2 mt-4" id="demo-lock-ok">Login</button>
+		            <input type="password" id="DemoPassword" name="password" class="input" placeholder="Password" required>
+		        	<button type="submit" class="btn btn-green btn-block mt-4" id="demo-lock-ok">Login</button>
 		        </form>
 		    </div>
 		</div>

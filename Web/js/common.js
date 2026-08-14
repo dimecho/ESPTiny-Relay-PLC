@@ -3,6 +3,31 @@ var refreshSpeed = 10000;
 var saveReminder;
 var notifyTimer;
 
+//Theme toggle
+(function() {
+    function applyTheme(dark) {
+        document.documentElement.classList.toggle('dark', dark);
+        try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch(e) {}
+    }
+    var saved = null;
+    try { saved = localStorage.getItem('theme'); } catch(e) {}
+    if(saved == 'dark') {
+        document.documentElement.classList.add('dark');
+    } else if(saved == 'light') {
+        document.documentElement.classList.remove('dark');
+    } else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark');
+    }
+    var btn = document.createElement('button');
+    btn.id = 'theme-toggle';
+    btn.setAttribute('aria-label', 'Toggle theme');
+    btn.innerHTML = '<svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg><svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+    btn.addEventListener('click', function() {
+        applyTheme(!document.documentElement.classList.contains('dark'));
+    });
+    document.body.appendChild(btn);
+})();
+
 //EEPROM Variables
 var WIFI_MODE = 1;
 var WIFI_HIDE = 2;
@@ -32,30 +57,30 @@ var SMTP_USERNAME = 22;
 var SMTP_PASSWORD = 23;
 var RELAY_NAME = 24;
 var ALERTS = 25;
-var DEMO_PASSWORD = 26;
+var PLC_PASSWORD = 26;
 var TIMEZONE_OFFSET = 27;
-var DEMOLOCK = false;
+var PLCLOCK = false;
 //==========
 var redirectURL = location.protocol + '//' + location.host + '.nip.io' + location.pathname;
 
 function notify(messageHeader, messageBody, bg, id) {
+    var bgClass;
     if(bg == 'danger') {
-        bg = 'bg-red-500';
+        bgClass = 'toast-red';
     }else if(bg == 'warning') {
-        bg = 'bg-yellow-500';
+        bgClass = 'toast-yellow';
     }else{
-        bg = 'bg-green-500';
+        bgClass = 'toast-green';
     }
     var toast = document.createElement('div');
-    toast.className = 'px-4 py-1 rounded text-white ' + bg;
+    toast.className = 'toast ' + bgClass;
 
     if (messageHeader != '') {
         var toastHeader = document.createElement('div');
-        toastHeader.className = 'flex border-b ' + bg;
+        toastHeader.className = 'toast-header';
         toastHeader.textContent = messageHeader;
         
         var btnClose = document.createElement('button');
-        btnClose.className = 'flex ml-auto';
         btnClose.textContent = 'X';
         toastHeader.appendChild(btnClose);
         toast.appendChild(toastHeader);
@@ -63,7 +88,6 @@ function notify(messageHeader, messageBody, bg, id) {
 
     if (messageBody != '') {
         var toastBody = document.createElement('div');
-        toastBody.className = 'toast-body';
         toastBody.textContent = messageBody;
         toast.appendChild(toastBody);
     }
@@ -76,16 +100,16 @@ function notify(messageHeader, messageBody, bg, id) {
 
 function saveSetting(offset, value, callback) {
 
-	if(DEMOLOCK) {
+	if(PLCLOCK) {
 		RelayLogin();
 	}else{
 	    var xhr = new XMLHttpRequest();
 	    xhr.onload = function() {
 	    	if (xhr.responseText == 'Locked') {
-				DEMOLOCK = true;
+				PLCLOCK = true;
 				RelayLogin();
 	    	}else{
-	    		DEMOLOCK = false;
+	    		PLCLOCK = false;
 	    	}
 	    	if (callback) callback(xhr.responseText);
 	    };

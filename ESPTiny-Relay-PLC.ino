@@ -2,6 +2,10 @@
 
 #define DEBUG 0
 #define ADDONS 1
+#if ADDONS
+#define CRASH_MARKER "/addons/.crashmark"
+void disableCrashedAddon(void);
+#endif
 #define CLOCK_DS1307 1
 #define TIMECLIENT_NTP 1
 #define EMAILCLIENT_SMTP 0
@@ -35,7 +39,19 @@ DS1307 rtc;
 #endif
 
 #if ADDONS
-typedef void (*addon_func_t)(void);
+typedef int (*addon_write_file_fn)(const char *path, const char *data, size_t len);
+typedef int (*addon_remove_file_fn)(const char *path);
+
+typedef struct {
+  addon_write_file_fn  writeFile;
+  addon_write_file_fn  appendFile;
+  addon_remove_file_fn removeFile;
+  int (*readFile)(const char *path, char *data, size_t maxLen);
+} addon_api_t;
+
+typedef void (*addon_func_t)(const addon_api_t *api);
+#include "esp_heap_caps.h"
+#include "esp_task_wdt.h"
 #endif
 
 #if EMAILCLIENT_SMTP
@@ -64,6 +80,7 @@ Ticker thread[9];
 void runRelay(const uint8_t pin, const uint8_t state, uint32_t duration, const uint8_t transistor);
 void runRelay(const uint8_t pin, const uint8_t state, uint32_t duration, const uint8_t transistor, const uint8_t threaded);
 Ticker bthread;
+static volatile bool addonBusy = false;
 void blinkThread(const uint16_t duration);
 static char logbuffer[64];
 
@@ -89,6 +106,7 @@ RTC_DATA_ATTR struct {
 unsigned long webTimer = 0;                        //track last webpage access
 unsigned long delayBetweenWiFi = 8 * 60 * 1000UL;  // 8 minutes
 static String plcProgramming; //saves PLC during filesystem upgrade
+static File addonUploadFile;
 
 #define MAX_RULES 16
 
@@ -138,7 +156,7 @@ int rule_count = 0;
 #define _SMTP_PASSWORD 23
 #define _RELAY_NAME 24
 #define _ALERTS 25
-#define _DEMO_PASSWORD 26
+#define _PLC_PASSWORD 26
 #define _TIMEZONE_OFFSET 27
 
 const int NVRAM_Map[] = {
@@ -168,7 +186,7 @@ const int NVRAM_Map[] = {
   880,  //_SMTP_PASSWORD 32
   912,  //_RELAY_NAME 32
   928,  //_ALERTS 16
-  960,  //_DEMO_PASSWORD 32
+  960,  //_PLC_PASSWORD 32
   992,  //_TIMEZONE_OFFSET 32
   1024  //+1
 };
@@ -197,7 +215,7 @@ uint32_t DEEP_SLEEP = 1;  //auto sleep timer - seconds (saved in minutes)
 char RELAY_NAME[32] = "";
 char ALERTS[] = "000000000";  //dhcp-ip, low-power, -, relay-run, -, -, internal-errors, high-priority, -
 //=============================
-char DEMO_PASSWORD[32] = "";  //public demo
+char PLC_PASSWORD[32] = "";  //public demo
 //=============================
 uint16_t delayBetweenAlertEmails = 3600;  //1 hour
 
@@ -278,7 +296,7 @@ void setup() {
     NVRAMWrite(_SMTP_PASSWORD, "");
     NVRAMWrite(_RELAY_NAME, WIRELESS_SSID);
     //==========
-    NVRAMWrite(_DEMO_PASSWORD, DEMO_PASSWORD);
+    NVRAMWrite(_PLC_PASSWORD, PLC_PASSWORD);
     NVRAMWrite(_TIMEZONE_OFFSET, "UTC7");
     //==========
     memset(&rtcData, 0, sizeof(rtcData));  //reset RTC memory
@@ -344,10 +362,8 @@ void setup() {
       pinMode(RelayPin[i], INPUT_PULLUP);  //Float the pin until set NPN or PNP
     }
 #if ADDONS
-    // Crash detected - clear addons
-    if (wakeupReason == ESP_RST_PANIC || wakeupReason == ESP_RST_TASK_WDT || wakeupReason == ESP_RST_INT_WDT || wakeupReason == ESP_RST_BROWNOUT) {
-      searchAddons(true);
-    }
+    // Disable the addon that was running when a crash reset occurred
+    disableCrashedAddon();
     searchAddons(false);
 #endif
     //Emergency Recover (RST to GND)
@@ -537,7 +553,7 @@ void setupWebServer() {
   //LittleFS.setConfig(config);
   LittleFS.begin(true);
 
-  strncpy(DEMO_PASSWORD, NVRAMRead(_DEMO_PASSWORD), sizeof(DEMO_PASSWORD));
+  strncpy(PLC_PASSWORD, NVRAMRead(_PLC_PASSWORD), sizeof(PLC_PASSWORD));
   //==============================================
   //Async Web Server HTTP_GET, HTTP_POST, HTTP_ANY
   //==============================================
@@ -646,7 +662,7 @@ void setupWebServer() {
       response->print(timeinfo->tm_sec);
       response->print(F(" DOW: "));
       response->print(timeinfo->tm_wday);
-    } else if (strlen(DEMO_PASSWORD) == 0) {
+    } else if (strlen(PLC_PASSWORD) == 0) {
       if (request->hasParam("reset")) {
         NVRAM_Erase();
         //NVRAMWrite(_PNP, PNP);
@@ -667,23 +683,50 @@ void setupWebServer() {
       } else if (request->hasParam("addons")) {
         String filepath = "/addons/";
         if (request->hasParam("run")) {
+#if ADDONS
           filepath += request->getParam("run")->value();
-          File file = LittleFS.open(filepath);
-          if (file) {
-            runAddon(file);
+            if (addonBusy) {
+            response->print(F("BUSY"));
+          } else {
+            addonBusy = true;
+            // Run the addon on a task at the LOWEST priority so its busy
+            // loops can never starve a WDT-subscribed task (idle, loop,
+            // async_tcp); the task itself is not subscribed to the task WDT.
+            String *pname = new String(filepath);
+            if (xTaskCreate(addonTask, "addon", 4096, pname, tskIDLE_PRIORITY, NULL) != pdPASS) {
+              delete pname;
+              addonBusy = false;
+            }
+            response->print(F("RUNNING"));
           }
+#else
           response->print(F("OK"));
+#endif
         } else if (request->hasParam("remove")) {
           filepath += request->getParam("remove")->value();
           if (LittleFS.remove(filepath)) {
             response->print(F("OK"));
           }
+        } else if (request->hasParam("enable")) {
+#if ADDONS
+          String name = request->getParam("enable")->value();
+          filepath = "/addons/" + name;
+          if (LittleFS.exists(filepath)) {
+            String active = name.substring(0, name.length() - 9) + ".bin";  // ".disabled" = 9 chars
+            if (LittleFS.rename(filepath, "/addons/" + active)) {
+              response->print(F("OK"));
+            }
+          }
+#endif
         } else {
           File root = LittleFS.open("/addons");
           File file = root.openNextFile();
           while (file) {
-            response->print(file.name());
-            response->write('\n');
+            String fn = file.name();
+            if (!fn.startsWith(".")) {
+              response->print(fn);
+              response->write('\n');
+            }
             file = root.openNextFile();
           }
         }
@@ -750,7 +793,7 @@ void setupWebServer() {
   server.on("/plc.txt", HTTP_POST, [](AsyncWebServerRequest *request) {
     AsyncResponseStream *response = request->beginResponseStream(FPSTR(text_plain));
 
-    if (strlen(DEMO_PASSWORD) == 0) {
+    if (strlen(PLC_PASSWORD) == 0) {
       if (request->hasParam("mosfet", true)) {  // MOSFET support
         MOSFET_SUPPORT = 1;
       } else {
@@ -768,6 +811,18 @@ void setupWebServer() {
     }
     request->send(response);
   });
+  server.on("/addons", HTTP_POST, [](AsyncWebServerRequest *request) {
+    AsyncResponseStream *response = request->beginResponseStream(FPSTR(text_plain));
+
+    if (strlen(PLC_PASSWORD) == 0) {
+      response->addHeader(FPSTR(refresh_http), "2;url=/addons.html");
+      response->print("Addon Uploaded ...");
+    } else {
+      response->print(FPSTR(locked_html));
+    }
+    request->send(response);
+  },
+     addonUpload);
   server.on("/log", HTTP_GET, [](AsyncWebServerRequest *request) {
     if (request->hasParam("end")) {
       LOG_ENABLE = 0;
@@ -785,14 +840,14 @@ void setupWebServer() {
     request->send(200, FPSTR(text_plain), F("..."));
   });
   server.on("/login", HTTP_POST, [](AsyncWebServerRequest *request) {
-    if (request->getParam("password", true)->value() == DEMO_PASSWORD) {
-      DEMO_PASSWORD[0] = 0;  //reset
+    if (request->getParam("password", true)->value() == PLC_PASSWORD) {
+      PLC_PASSWORD[0] = 0;  //reset
     }
     request->redirect("/");
   });
   server.on("/nvram.json", HTTP_GET, [](AsyncWebServerRequest *request) {
     if (request->params() > 0) {
-      if (strlen(DEMO_PASSWORD) == 0) {
+      if (strlen(PLC_PASSWORD) == 0) {
         uint8_t i = atoi(request->getParam("offset")->value().c_str());
         if (request->hasParam("alert")) {
           ALERTS[i] = atoi(request->getParam("alert")->value().c_str());
@@ -837,8 +892,8 @@ void setupWebServer() {
       Serial.printf("DRAM free: %6d bytes\r\n", ESP.getFreeHeap());
 #endif
       for (uint8_t i = 1; i <= 27; i++) {
-        if (i == _WIRELESS_PASSWORD || i == _SMTP_PASSWORD || i == _DEMO_PASSWORD) {
-          if (strlen(DEMO_PASSWORD) == 0) {
+        if (i == _WIRELESS_PASSWORD || i == _SMTP_PASSWORD || i == _PLC_PASSWORD) {
+          if (strlen(PLC_PASSWORD) == 0) {
             response->print(F(",\"\""));
           } else {
             response->print(F(",\"****\""));
@@ -865,7 +920,7 @@ void setupWebServer() {
   */
   server.on("/nvram", HTTP_POST, [](AsyncWebServerRequest *request) {
     AsyncResponseStream *response = request->beginResponseStream(FPSTR(text_plain));
-    if (strlen(DEMO_PASSWORD) > 0) {
+    if (strlen(PLC_PASSWORD) > 0) {
       response->print(FPSTR(locked_html));
     } else {
       const AsyncWebParameter *param0 = request->getParam(0);
@@ -903,7 +958,7 @@ void setupWebServer() {
         n = _EMAIL_ALERT;
         skip = (_EMAIL_ALERT - _SMTP_PASSWORD) + 1;  //skip oauth token
       } else if (param0->name() == "demo") {
-        n = _DEMO_PASSWORD;
+        n = _PLC_PASSWORD;
       }
       response->addHeader(FPSTR(refresh_http), buf);
 
@@ -938,8 +993,8 @@ void setupWebServer() {
   server.on("/update", HTTP_GET, [](AsyncWebServerRequest *request) {
     webTimer = millis();
 #ifndef ARDUINO_SIGNING
-    if (strlen(DEMO_PASSWORD) > 0)
-      if (!request->authenticate("", DEMO_PASSWORD))
+    if (strlen(PLC_PASSWORD) > 0)
+      if (!request->authenticate("", PLC_PASSWORD))
         return request->requestAuthentication();
 #endif
     AsyncResponseStream *response = request->beginResponseStream(FPSTR(text_html));
@@ -965,8 +1020,8 @@ void setupWebServer() {
   server.on(
     "/update", HTTP_POST, [](AsyncWebServerRequest *request) {
 #ifndef ARDUINO_SIGNING
-      if (strlen(DEMO_PASSWORD) > 0)
-        if (!request->authenticate("", DEMO_PASSWORD))
+      if (strlen(PLC_PASSWORD) > 0)
+        if (!request->authenticate("", PLC_PASSWORD))
           return request->requestAuthentication();
 #endif
       AsyncResponseStream *response = request->beginResponseStream(FPSTR(text_plain));
@@ -1015,7 +1070,7 @@ void setupWebServer() {
       AsyncWebServerResponse *response = request->beginResponse(LittleFS, file, getContentType(file));
       if (file == "/find.html") {
         response->addHeader(F("Access-Control-Allow-Origin"), "*");  // Allow all origins
-      } else if (file != "/plc.txt") {
+      } else if (!file.endsWith(".txt") && !file.startsWith("/addons/")) {
         response->addHeader(F("Content-Encoding"), "gzip");
       }
       request->send(response);
@@ -1329,6 +1384,26 @@ void WebUpload(AsyncWebServerRequest *request, String filename, size_t index, ui
   }
 }
 
+void addonUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
+  if (!index) {
+    int slash = filename.lastIndexOf('/');
+    if (slash != -1) {
+      filename = filename.substring(slash + 1);  //strip any path
+    }
+    addonUploadFile = LittleFS.open("/addons/" + filename, "w");
+#if DEBUG
+    Serial.printf("Addon upload: %s\n", filename.c_str());
+#endif
+  }
+  if (addonUploadFile) {
+    addonUploadFile.write(data, len);
+  }
+  if (final) {
+    addonUploadFile.close();
+    addonUploadFile = File();
+  }
+}
+
 #if EMAILCLIENT_SMTP
 void smtpSend(const char *subject, const char *body, uint8_t now) {
 
@@ -1595,38 +1670,136 @@ void parseRule(char *line) {
 }
 
 #if ADDONS
+int addonWriteFile(const char *path, const char *data, size_t len) {
+  File f = LittleFS.open(path, FILE_WRITE);
+  if (!f) {
+    return -1;
+  }
+  f.write((const uint8_t *)data, len);
+  f.close();
+  return 0;
+}
+
+int addonAppendFile(const char *path, const char *data, size_t len) {
+  File f = LittleFS.open(path, FILE_APPEND);
+  if (!f) {
+    return -1;
+  }
+  f.write((const uint8_t *)data, len);
+  f.close();
+  return 0;
+}
+
+int addonRemoveFile(const char *path) {
+  return LittleFS.remove(path) ? 0 : -1;
+}
+
+int addonReadFile(const char *path, char *data, size_t maxLen) {
+  File f = LittleFS.open(path, FILE_READ);
+  if (!f) {
+    return -1;
+  }
+  size_t n = f.readBytes(data, maxLen);
+  f.close();
+  return (int)n;
+}
+
+static addon_api_t addonApi = {addonWriteFile, addonAppendFile, addonRemoveFile, addonReadFile};
+
 void runAddon(File &file) {
   String filename = file.name();
+#if CONFIG_IDF_TARGET_ESP32S2
+  if (!filename.endsWith("-esp32s2.bin")) {
+    return;
+  }
+#else
+  if (!filename.endsWith("-esp32.bin")) {
+    return;
+  }
+#endif
 #if DEBUG
   Serial.print("Loading ");
   Serial.println(filename);
 #endif
   size_t size = file.size();
-  uint8_t *buffer = (uint8_t *)ps_malloc(size);  // Try PSRAM
-  if (!buffer) {
-    buffer = (uint8_t *)malloc(size);  // Fallback
-  }
+  uint8_t *buffer = (uint8_t *)heap_caps_malloc(size, MALLOC_CAP_EXEC);  // IRAM, executable
   if (!buffer) {
 #if DEBUG
-    Serial.println("Memory allocation failed");
+    Serial.println("IRAM allocation failed");
 #endif
     return;
   }
-  file.read(buffer, size);
+  uint8_t *tmp = (uint8_t *)malloc(size);  // DRAM scratch (fread/memcpy can't write IRAM)
+  if (!tmp) {
 #if DEBUG
-  Serial.print("Calling ");
-  Serial.println(filename);
+    Serial.println("DRAM allocation failed");
 #endif
-  /*
-    addon_func_t* func_table = (addon_func_t*)buffer;
-    size_t func_count = 1;
-    for (size_t i = 0; i < func_count; i++) {
-      func_table[i](); // call addon function
+    heap_caps_free(buffer);
+    return;
+  }
+  file.read(tmp, size);
+  // ESP32 classic IRAM only supports 32-bit aligned accesses; byte/halfword
+  // stores (memcpy tail) would raise a LoadStoreError, so copy word-by-word.
+  // volatile src prevents the compiler from forwarding the read straight into
+  // the IRAM buffer and deleting the temp.
+  uint32_t *dst = (uint32_t *)buffer;
+  const volatile uint32_t *src = (const volatile uint32_t *)tmp;
+  size_t words = (size + 3) / 4;
+  for (size_t i = 0; i < words; i++) {
+    dst[i] = src[i];
+  }
+  free(tmp);
+  uint32_t entry_count = ((uint32_t *)buffer)[0];
+  uint32_t entry_offset = ((uint32_t *)buffer)[1];
+#if DEBUG
+  Serial.print("Entries=");
+  Serial.println(entry_count);
+  Serial.print("Offset=");
+  Serial.println(entry_offset);
+#endif
+  if (entry_count >= 1 && entry_offset < size) {
+    addon_func_t func = (addon_func_t)(buffer + entry_offset);
+#if DEBUG
+    Serial.print("Calling ");
+    Serial.println(filename);
+#endif
+    // Arm crash marker: if the device resets while this is set, this addon was
+    // running at crash time and will be disabled on next boot.
+    File mk = LittleFS.open(CRASH_MARKER, "w");
+    if (mk) {
+      mk.print(filename);
+      mk.close();
     }
-    */
-  addon_func_t func = (addon_func_t)buffer;
-  //func();
-  free(buffer);
+    // Drop this task from the task WDT while the addon runs: addons may block
+    // (busy loops, delays) far longer than the 5 s task-WDT timeout, which
+    // otherwise aborts when the addon runs on the async_tcp or loop task.
+    // Only touched if the calling task was actually subscribed, so the
+    // esp_timer task (unsubscribed) is left untouched.
+    bool wdtSubscribed = (esp_task_wdt_status(NULL) == ESP_OK);
+    if (wdtSubscribed) {
+      esp_task_wdt_delete(NULL);
+    }
+    func(&addonApi);
+    if (wdtSubscribed) {
+      esp_task_wdt_add(NULL);
+    }
+    LittleFS.remove(CRASH_MARKER);
+  }
+  heap_caps_free(buffer);
+}
+
+// Runs in a dedicated task (not subscribed to the task WDT) created by the
+// web "run" handler. Runs at the lowest priority so a long busy-looping
+// addon can never starve a WDT-subscribed task.
+void addonTask(void *param) {
+  String *name = (String *)param;
+  File file = LittleFS.open(*name);
+  if (file) {
+    runAddon(file);
+  }
+  delete name;
+  addonBusy = false;
+  vTaskDelete(NULL);
 }
 
 void searchAddons(bool remove) {
@@ -1645,6 +1818,30 @@ void searchAddons(bool remove) {
       file = root.openNextFile();
     }
   }
+}
+
+void disableCrashedAddon(void) {
+  // runAddon arms a marker file before invoking an addon and clears it after it
+  // returns. If the device reset with the marker still present, that addon was
+  // running at crash time: rename it to <name>.disabled so it is skipped until
+  // the user re-enables it. On any other reset a stale marker is just cleared.
+  if (!LittleFS.exists(CRASH_MARKER)) {
+    return;
+  }
+  String name = "";
+  File mk = LittleFS.open(CRASH_MARKER, "r");
+  if (mk) {
+    name = mk.readString();
+    mk.close();
+  }
+  esp_reset_reason_t reason = esp_reset_reason();
+  if (name.length() > 0 && name.endsWith(".bin") &&
+      (reason == ESP_RST_PANIC || reason == ESP_RST_TASK_WDT || reason == ESP_RST_INT_WDT ||
+       reason == ESP_RST_WDT || reason == ESP_RST_BROWNOUT)) {
+    String disabled = name.substring(0, name.length() - 4) + ".disabled";
+    LittleFS.rename("/addons/" + name, "/addons/" + disabled);
+  }
+  LittleFS.remove(CRASH_MARKER);
 }
 #endif
 

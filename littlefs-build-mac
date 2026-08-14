@@ -33,7 +33,11 @@ cp -rf Web/img/esp32s2-mini.svg data/img
 cp -rf Web/img/eye-slash.svg data/img
 cp -rf Web/img/eye-slash-fill.svg data/img
 
-for f in $(find data -type f -name '*.*' ! -name 'plc*' ! -name '*.bin'); do
+for f in $(find data/addons -type f -name '*.bin' ! -name 'test*'); do
+    rm "$f"
+done
+
+for f in $(find data -type f -name '*.*' ! -name '*.txt' ! -name '*.bin'); do
     gzip "$f"
     mv "$f.gz" "$f"
 done
