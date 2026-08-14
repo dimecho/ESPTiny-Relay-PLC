@@ -9,13 +9,13 @@
         <script>
         document.addEventListener('DOMContentLoaded', function(event)
         {
-            var nvram = new XMLHttpRequest();
-            nvram.responseType = 'json';
-            nvram.open('GET', '/nvram.json', true);
-            nvram.send();
-            nvram.onload = function(e) {
-                if(nvram.response != undefined) {   
-                    if(nvram.response['nvram'][0].indexOf('esp32') != -1) {
+            var eeprom = new XMLHttpRequest();
+            eeprom.responseType = 'json';
+            eeprom.open('GET', '/eeprom.json', true);
+            eeprom.send();
+            eeprom.onload = function(e) {
+                if(eeprom.response != undefined) {   
+                    if(eeprom.response['eeprom'][0].indexOf('esp32') != -1) {
                         ESP32 = true;
                         const select = document.getElementById("WiFiPhyMode");
                         const newOption = document.createElement("option");
@@ -23,46 +23,46 @@
                         newOption.text = "802.11 ax";
                         select.appendChild(newOption);
                     }
-                    if(nvram.response['nvram'][WIFI_PHY_MODE] == 3) {
+                    if(eeprom.response['eeprom'][WIFI_PHY_MODE] == 3) {
                         var optionObject = document.getElementById('WiFiPower').options;
                         optionObject[17].setAttribute('hidden','true');
                         optionObject[18].setAttribute('hidden','true');
                         optionObject[19].setAttribute('hidden','true');
                         optionObject[20].setAttribute('hidden','true');
                     }
-                    var bool_value = nvram.response['nvram'][WIFI_HIDE] == '1' ? true : false;
-                    document.getElementById('WiFiHidden').value = nvram.response['nvram'][WIFI_HIDE];
+                    var bool_value = eeprom.response['eeprom'][WIFI_HIDE] == '1' ? true : false;
+                    document.getElementById('WiFiHidden').value = eeprom.response['eeprom'][WIFI_HIDE];
                     document.getElementById('WiFiHiddenCheckbox').checked = bool_value;
 
-                    setWiFiChannels(nvram.response['nvram'][WIFI_PHY_MODE]);
+                    setWiFiChannels(eeprom.response['eeprom'][WIFI_PHY_MODE]);
                     document.getElementById('WiFiPhyMode').addEventListener("change", function () {
                         setWiFiChannels(this.value);
                     });
-                    document.getElementById('WiFiPhyMode').value = nvram.response['nvram'][WIFI_PHY_MODE];
-                    document.getElementById('WiFiPower').value = nvram.response['nvram'][WIFI_PHY_POWER];
-                    document.getElementById('WiFiChannel').value = nvram.response['nvram'][WIFI_CHANNEL];
-                    document.getElementById('WiFiSSID').value = nvram.response['nvram'][WIFI_SSID];
-                    document.getElementById('WiFiUsername').value = nvram.response['nvram'][WIFI_USERNAME];
-                    bool_value = nvram.response['nvram'][LOG_ENABLE] == '1' ? true : false;
-                    document.getElementById('EnableLog').value = nvram.response['nvram'][LOG_ENABLE];
+                    document.getElementById('WiFiPhyMode').value = eeprom.response['eeprom'][WIFI_PHY_MODE];
+                    document.getElementById('WiFiPower').value = eeprom.response['eeprom'][WIFI_PHY_POWER];
+                    document.getElementById('WiFiChannel').value = eeprom.response['eeprom'][WIFI_CHANNEL];
+                    document.getElementById('WiFiSSID').value = eeprom.response['eeprom'][WIFI_SSID];
+                    document.getElementById('WiFiUsername').value = eeprom.response['eeprom'][WIFI_USERNAME];
+                    bool_value = eeprom.response['eeprom'][LOG_ENABLE] == '1' ? true : false;
+                    document.getElementById('EnableLog').value = eeprom.response['eeprom'][LOG_ENABLE];
                     document.getElementById('EnableLogCheckbox').checked = bool_value;
 
-                    bool_value = nvram.response['nvram'][NETWORK_DHCP] == '1' ? true : false;
-                    document.getElementById('WiFiDHCP').value = nvram.response['nvram'][NETWORK_DHCP];
+                    bool_value = eeprom.response['eeprom'][NETWORK_DHCP] == '1' ? true : false;
+                    document.getElementById('WiFiDHCP').value = eeprom.response['eeprom'][NETWORK_DHCP];
                     document.getElementById('WiFiDHCPCheckbox').checked = bool_value;
                     document.getElementById('WiFiIP').disabled = bool_value;
                     document.getElementById('WiFiSubnet').disabled = bool_value;
                     document.getElementById('WiFiGateway').disabled = bool_value;
                     document.getElementById('WiFiDNS').disabled = bool_value;
-                    document.getElementById('WiFiIP').value = nvram.response['nvram'][NETWORK_IP];
-                    document.getElementById('WiFiSubnet').value = nvram.response['nvram'][NETWORK_SUBNET];
-                    document.getElementById('WiFiGateway').value = nvram.response['nvram'][NETWORK_GATEWAY];
-                    document.getElementById('WiFiDNS').value = nvram.response['nvram'][NETWORK_DNS];
+                    document.getElementById('WiFiIP').value = eeprom.response['eeprom'][NETWORK_IP];
+                    document.getElementById('WiFiSubnet').value = eeprom.response['eeprom'][NETWORK_SUBNET];
+                    document.getElementById('WiFiGateway').value = eeprom.response['eeprom'][NETWORK_GATEWAY];
+                    document.getElementById('WiFiDNS').value = eeprom.response['eeprom'][NETWORK_DNS];
 
-                    document.getElementsByName('Mode')[nvram.response['nvram'][WIFI_MODE]].checked = true;
+                    document.getElementsByName('Mode')[eeprom.response['eeprom'][WIFI_MODE]].checked = true;
                     SetWiFiMode();
                     
-                    if(nvram.response['nvram'][PLC_PASSWORD] != '')
+                    if(eeprom.response['eeprom'][PLC_PASSWORD] != '')
                     {
                         PLCLOCK = true;
                     }
@@ -185,7 +185,7 @@
                 <button class="btn btn-orange" onclick="window.location.href='firmware.html'">Firmware</button>
             </div>
             <div class="card">
-                <form method="POST" action="nvram?wifi" id="wireless-SettingsForm">
+                <form method="POST" action="eeprom?wifi" id="wireless-SettingsForm">
                     <div class="grid-2">
                             <fieldset>
                                 <legend>WiFi Mode</legend>

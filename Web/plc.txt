@@ -1,3 +1,7 @@
+; Addon Trigger (NAME = uppercase addon name, ACTION = ON once / LOOP every check, TYPE = BIN)
+
+; TEST : 12 : * : * : 16:59:00-01:00:00 : ON : BIN
+
 ; DS1307 Battery Charge (Winter/Summer)
 
 Relay1 : 1-2 : 1,15 : * : 10:00:00-16:00:00 : ON : PNP

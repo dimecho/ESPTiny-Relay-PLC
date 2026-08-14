@@ -7,13 +7,13 @@
         <link rel="stylesheet" type="text/css" href="css/style.css">
         <script defer src="js/common.js"></script>
         <script>
-        	var nvram = new XMLHttpRequest();
-            nvram.responseType = 'json';
-            nvram.open('GET', 'nvram.json', true);
-            nvram.send();
-            nvram.onload = function(e) {
-                if (nvram.response != undefined && nvram.response.nvram) {
-			        var info = nvram.response.nvram[0];
+        	var eeprom = new XMLHttpRequest();
+            eeprom.responseType = 'json';
+            eeprom.open('GET', 'eeprom.json', true);
+            eeprom.send();
+            eeprom.onload = function(e) {
+                if (eeprom.response != undefined && eeprom.response.eeprom) {
+			        var info = eeprom.response.eeprom[0];
 			        if (info.indexOf('ESP32-D0WD-V3') != -1) {
             			document.getElementById('8-channel-relay').remove();
 			            var espboard = document.getElementById('esp32-board');

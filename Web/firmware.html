@@ -10,18 +10,18 @@
         var pnpslider, adcslider;
         document.addEventListener('DOMContentLoaded', function(event)
         {
-            var nvram = new XMLHttpRequest();
-            nvram.responseType = 'json';
-            nvram.open('GET', 'nvram.json', true);
-            nvram.send();
-            nvram.onload = function(e) {
-                if(nvram.response != undefined) {
-                    if(nvram.response['nvram'][PLC_PASSWORD] != '')
+            var eeprom = new XMLHttpRequest();
+            eeprom.responseType = 'json';
+            eeprom.open('GET', 'eeprom.json', true);
+            eeprom.send();
+            eeprom.onload = function(e) {
+                if(eeprom.response != undefined) {
+                    if(eeprom.response['eeprom'][PLC_PASSWORD] != '')
                     {
                         PLCLOCK = true;
                     }
                     try {
-                        var v = nvram.response['nvram'][0].split('|');
+                        var v = eeprom.response['eeprom'][0].split('|');
                         document.getElementById('coreVersion').textContent = 'Core Version: ' + v[0];
                         document.getElementById('sdkVersion').textContent = 'SDK Version: ' + v[1];
                         document.getElementById('fsVersion').textContent = 'LittleFS Version: ' + (0xffff & (v[2] >> 16)) + '.' + (0xffff & (v[2] >> 0)) + '.' + (0xffff & (v[2] >> 20));

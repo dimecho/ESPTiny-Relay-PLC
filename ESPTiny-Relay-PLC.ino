@@ -15,6 +15,7 @@ void disableCrashedAddon(void);
 //#define ARDUINO_SIGNING 0
 
 #include <WiFi.h>
+#include "esp_wifi.h"
 #if WPA2ENTERPRISE
 #include "esp_eap_client.h"  //WPA2 Enterprise
 #endif
@@ -55,11 +56,31 @@ typedef void (*addon_func_t)(const addon_api_t *api);
 #endif
 
 #if EMAILCLIENT_SMTP
-#include <ESP_Mail_Client.h>
-//Must be defined globally, otherwise "Fatal exception 28(LoadProhibitedCause)"
-SMTPSession smtp;
-ESP_Mail_Session session;
-SMTP_Message message;
+#define ENABLE_SMTP
+#if TIMECLIENT_NTP
+#define READYMAIL_TIME_SOURCE time(nullptr);
+#endif
+#if DEBUG
+#define ENABLE_DEBUG
+#define READYMAIL_DEBUG_PORT Serial
+#endif
+#include <ReadyMail.h>
+#include <ESP_SSLClient.h>
+//ReadyMail SMTP client (async mode, driven from loop())
+WiFiClient basic_client;
+ESP_SSLClient ssl_client;
+SMTPClient smtp(ssl_client);
+//async SMTP state
+static uint8_t smtpStep = 0;  //0 idle, 1 connect, 2 auth, 3 send, 4 wait
+static bool smtpSendDone = false;
+static bool smtpWifiOffPending = false;
+static unsigned long smtpStartMs = 0;
+static String smtpSubject;
+static String smtpBody;
+static String smtpHost;
+static uint16_t smtpPort = 25;
+static bool smtpSsl = false;
+static bool smtpStartTLS = false;
 #endif
 
 #include <ESPAsyncWebServer.h>  //Latest from (mathieucarbou/ESPAsyncWebServer)
@@ -77,10 +98,12 @@ static uint8_t RelayPin[] = { 23, 23, 23, 23, 23, 23, 23, 23 };
 
 #include <Ticker.h>
 Ticker thread[9];
+Ticker ledthread;
 void runRelay(const uint8_t pin, const uint8_t state, uint32_t duration, const uint8_t transistor);
 void runRelay(const uint8_t pin, const uint8_t state, uint32_t duration, const uint8_t transistor, const uint8_t threaded);
-Ticker bthread;
 static volatile bool addonBusy = false;
+static bool eepromDirty = false;          // EEPROM is flash-emulated; commits are coalesced
+static uint32_t eepromLastWrite = 0;
 void blinkThread(const uint16_t duration);
 static char logbuffer[64];
 
@@ -112,6 +135,7 @@ static File addonUploadFile;
 
 typedef struct {
   uint8_t relay;
+  char name[32];
   char month[32];
   char monthday[32];
   char weekday[32];
@@ -125,6 +149,7 @@ typedef struct {
   char end_second[3];
   time_t start_epoch;
   time_t end_epoch;
+  bool fired;
 } plc_rule_t;
 
 plc_rule_t rules[MAX_RULES];
@@ -159,7 +184,7 @@ int rule_count = 0;
 #define _PLC_PASSWORD 26
 #define _TIMEZONE_OFFSET 27
 
-const int NVRAM_Map[] = {
+const int EEPROM_Map[] = {
   0,    //_EEPROM_ID 16
   16,   //_WIRELESS_MODE 8
   24,   //_WIRELESS_HIDE 8
@@ -192,7 +217,7 @@ const int NVRAM_Map[] = {
 };
 
 uint8_t WIRELESS_MODE = 0;  //WIRELESS_AP = 0, WIRELESS_STA(WPA2) = 1, WIRELESS_STA(WPA2 ENT) = 2, WIRELESS_STA(WEP) = 3
-//uint8_t WIRELESS_HIDE = 0;
+uint8_t WIRELESS_HIDE = 0;
 uint8_t WIRELESS_PHY_MODE = 3;    //WIRELESS_PHY_MODE_11B = 1, WIRELESS_PHY_MODE_11G = 2, WIRELESS_PHY_MODE_11N = 3
 uint8_t WIRELESS_PHY_POWER = 10;  //Max = 20.5dBm (some ESP modules 24.0dBm) should be multiples of 0.25
 uint8_t WIRELESS_CHANNEL = 7;
@@ -201,11 +226,12 @@ char WIRELESS_USERNAME[] = "";
 char WIRELESS_PASSWORD[] = "";
 uint8_t LOG_ENABLE = 0;  //data logger (enable/disable)
 uint8_t MOSFET_SUPPORT = 0;
-//uint8_t NETWORK_DHCP = 0;
+uint8_t NETWORK_DHCP = 0;
 char NETWORK_IP[64] = "192.168.8.8";  //IPv4
+char NETWORK_DHCPIP[64] = "0.0.0.0";  //last assigned IP (DHCP or static)
 char NETWORK_SUBNET[64] = "255.255.255.0";
-//char NETWORK_GATEWAY[] = "";
-//char NETWORK_DNS[] = "";
+char NETWORK_GATEWAY[64] = "";
+char NETWORK_DNS[64] = "";
 uint32_t DEEP_SLEEP = 1;  //auto sleep timer - seconds (saved in minutes)
 //=============================
 //String EMAIL_ALERT = "";
@@ -236,10 +262,10 @@ void setup() {
 #endif
 
   //======================
-  //NVRAM type of Settings
+  //EEPROM type of Settings
   //======================
   EEPROM.begin(1024);
-  long eid = atoi(NVRAMRead(_EEPROM_ID));
+  long eid = atoi(EEPROMRead(_EEPROM_ID));
 #if DEBUG
   Serial.print("EEPROM CRC Stored: 0x");
   Serial.println(eid, HEX);
@@ -267,46 +293,46 @@ void setup() {
     LittleFS.begin(true);
     //LittleFS.format();
 
-    NVRAM_Erase();
-    NVRAMWrite(_EEPROM_ID, EEPROM_ID);
-    NVRAMWrite(_WIRELESS_MODE, WIRELESS_MODE);
-    NVRAMWrite(_WIRELESS_HIDE, "0");
-    NVRAMWrite(_WIRELESS_PHY_MODE, WIRELESS_PHY_MODE);
-    NVRAMWrite(_WIRELESS_PHY_POWER, WIRELESS_PHY_POWER);
-    NVRAMWrite(_WIRELESS_CHANNEL, WIRELESS_CHANNEL);
-    NVRAMWrite(_WIRELESS_SSID, WIRELESS_SSID);
-    NVRAMWrite(_WIRELESS_USERNAME, "");
-    NVRAMWrite(_WIRELESS_PASSWORD, "");
-    NVRAMWrite(_LOG_ENABLE, "0");
-    NVRAMWrite(_MOSFET_SUPPORT, "0");
-    NVRAMWrite(_GPIO_ARRAY, GPIO_ARRAY);
+    EEPROM_Erase();
+    EEPROMWrite(_EEPROM_ID, EEPROM_ID);
+    EEPROMWrite(_WIRELESS_MODE, WIRELESS_MODE);
+    EEPROMWrite(_WIRELESS_HIDE, "0");
+    EEPROMWrite(_WIRELESS_PHY_MODE, WIRELESS_PHY_MODE);
+    EEPROMWrite(_WIRELESS_PHY_POWER, WIRELESS_PHY_POWER);
+    EEPROMWrite(_WIRELESS_CHANNEL, WIRELESS_CHANNEL);
+    EEPROMWrite(_WIRELESS_SSID, WIRELESS_SSID);
+    EEPROMWrite(_WIRELESS_USERNAME, "");
+    EEPROMWrite(_WIRELESS_PASSWORD, "");
+    EEPROMWrite(_LOG_ENABLE, "0");
+    EEPROMWrite(_MOSFET_SUPPORT, "0");
+    EEPROMWrite(_GPIO_ARRAY, GPIO_ARRAY);
     //==========
-    NVRAMWrite(_NETWORK_DHCP, "0");
-    NVRAMWrite(_NETWORK_IP, NETWORK_IP);
-    NVRAMWrite(_NETWORK_SUBNET, NETWORK_SUBNET);
-    NVRAMWrite(_NETWORK_GATEWAY, NETWORK_IP);
-    NVRAMWrite(_NETWORK_DNS, NETWORK_IP);
+    EEPROMWrite(_NETWORK_DHCP, "0");
+    EEPROMWrite(_NETWORK_IP, NETWORK_IP);
+    EEPROMWrite(_NETWORK_SUBNET, NETWORK_SUBNET);
+    EEPROMWrite(_NETWORK_GATEWAY, NETWORK_IP);
+    EEPROMWrite(_NETWORK_DNS, NETWORK_IP);
     //==========
-    NVRAMWrite(_DEEP_SLEEP, DEEP_SLEEP);
+    EEPROMWrite(_DEEP_SLEEP, DEEP_SLEEP);
     //==========
-    NVRAMWrite(_ALERTS, ALERTS);
-    NVRAMWrite(_EMAIL_ALERT, "");
-    NVRAMWrite(_SMTP_SERVER, "");
-    NVRAMWrite(_SMTP_USERNAME, "");
-    NVRAMWrite(_SMTP_PASSWORD, "");
-    NVRAMWrite(_RELAY_NAME, WIRELESS_SSID);
+    EEPROMWrite(_ALERTS, ALERTS);
+    EEPROMWrite(_EMAIL_ALERT, "");
+    EEPROMWrite(_SMTP_SERVER, "");
+    EEPROMWrite(_SMTP_USERNAME, "");
+    EEPROMWrite(_SMTP_PASSWORD, "");
+    EEPROMWrite(_RELAY_NAME, WIRELESS_SSID);
     //==========
-    NVRAMWrite(_PLC_PASSWORD, PLC_PASSWORD);
-    NVRAMWrite(_TIMEZONE_OFFSET, "UTC7");
+    EEPROMWrite(_PLC_PASSWORD, PLC_PASSWORD);
+    EEPROMWrite(_TIMEZONE_OFFSET, "UTC7");
     //==========
     memset(&rtcData, 0, sizeof(rtcData));  //reset RTC memory
   } else {
     loadRelayGPIO();
-    DEEP_SLEEP = atoi(NVRAMRead(_DEEP_SLEEP));
-    LOG_ENABLE = atoi(NVRAMRead(_LOG_ENABLE));
-    MOSFET_SUPPORT = atoi(NVRAMRead(_MOSFET_SUPPORT));
-    strncpy(ALERTS, NVRAMRead(_ALERTS), sizeof(ALERTS));
-    strncpy(RELAY_NAME, NVRAMRead(_RELAY_NAME), sizeof(RELAY_NAME));
+    DEEP_SLEEP = atoi(EEPROMRead(_DEEP_SLEEP)) * 60;
+    LOG_ENABLE = atoi(EEPROMRead(_LOG_ENABLE));
+    MOSFET_SUPPORT = atoi(EEPROMRead(_MOSFET_SUPPORT));
+    strncpy(ALERTS, EEPROMRead(_ALERTS), sizeof(ALERTS));
+    strncpy(RELAY_NAME, EEPROMRead(_RELAY_NAME), sizeof(RELAY_NAME));
   }
   //EEPROM.end();
 
@@ -364,30 +390,34 @@ void setup() {
 #if ADDONS
     // Disable the addon that was running when a crash reset occurred
     disableCrashedAddon();
-    searchAddons(false);
 #endif
     //Emergency Recover (RST to GND)
     if (wakeupReason == ESP_RST_EXT) {  //ESP_RST_EXT (2) ESP_RST_SW (3)
-      DEEP_SLEEP = 600;
+#if DEBUG
+      Serial.printf("EMERGENCY RESET: %u\n", wakeupReason);
+#endif
+      delayBetweenWiFi = 600000;
       ALERTS[0] = '1';  //email DHCP IP
       ALERTS[1] = '0';  //low voltage
-      //memset(&rtcData, 0, sizeof(rtcData));  //reset RTC memory (set all zero)
-      setupWiFi(22);
       blinky(1200, 1);
       //ArduinoOTA.begin();
     } else {
-      setupWiFi(0);
+      strncpy(PLC_PASSWORD, EEPROMRead(_PLC_PASSWORD), sizeof(PLC_PASSWORD));
     }
+    setupWiFi();
     setupWebServer();
   }
 #if DEBUG
   Serial.printf("Boot calibration (milliseconds):%u\n", millis());
 #endif
+#if EMAILCLIENT_SMTP
+  ssl_client.setClient(&basic_client);
+#endif
 }
 
 void setSystemTime(time_t epoch) {
   struct timeval tv;
-  const char *tz = NVRAMRead(_TIMEZONE_OFFSET);
+  const char *tz = EEPROMRead(_TIMEZONE_OFFSET);
   //char tz[] = "PST8PDT,M3.2.0,M11.1.0";
 
   setenv("TZ", tz, 1);
@@ -399,15 +429,25 @@ void setSystemTime(time_t epoch) {
 }
 
 //This is a power expensive function 80+mA
-void setupWiFi(uint8_t timeout) {
+void setupWiFi() {
 
+  delayBetweenWiFi = DEEP_SLEEP * 1000;  //ms
   blinky(200, 3);  //Alive blink
 
-  WIRELESS_MODE = atoi(NVRAMRead(_WIRELESS_MODE));
-  WIRELESS_CHANNEL = atoi(NVRAMRead(_WIRELESS_CHANNEL));
-  WIRELESS_PHY_MODE = atoi(NVRAMRead(_WIRELESS_PHY_MODE));
-  WIRELESS_PHY_POWER = atoi(NVRAMRead(_WIRELESS_PHY_POWER));
-  strncpy(NETWORK_IP, NVRAMRead(_NETWORK_IP), sizeof(NETWORK_IP));
+  //Load wireless config once into RAM globals so a STA->AP fallback recursion keeps its settings
+  static bool wifiConfigLoaded = false;
+  if (!wifiConfigLoaded) {
+    WIRELESS_MODE = atoi(EEPROMRead(_WIRELESS_MODE));
+    WIRELESS_CHANNEL = atoi(EEPROMRead(_WIRELESS_CHANNEL));
+    WIRELESS_PHY_MODE = atoi(EEPROMRead(_WIRELESS_PHY_MODE));
+    WIRELESS_PHY_POWER = atoi(EEPROMRead(_WIRELESS_PHY_POWER));
+    strncpy(NETWORK_IP, EEPROMRead(_NETWORK_IP), sizeof(NETWORK_IP));
+    WIRELESS_HIDE = atoi(EEPROMRead(_WIRELESS_HIDE));
+    NETWORK_DHCP = atoi(EEPROMRead(_NETWORK_DHCP));
+    strncpy(WIRELESS_SSID, EEPROMRead(_WIRELESS_SSID), sizeof(WIRELESS_SSID));
+    strncpy(WIRELESS_PASSWORD, EEPROMRead(_WIRELESS_PASSWORD), sizeof(WIRELESS_PASSWORD));
+    wifiConfigLoaded = true;
+  }
 
   //Forcefull Wakeup
   //-------------------
@@ -417,27 +457,28 @@ void setupWiFi(uint8_t timeout) {
   //-------------------
   IPAddress ip, gateway, subnet, dns;
   ip.fromString(NETWORK_IP);
-  subnet.fromString(NVRAMRead(_NETWORK_SUBNET));
-  gateway.fromString(NVRAMRead(_NETWORK_GATEWAY));
-  dns.fromString(NVRAMRead(_NETWORK_DNS));
+  subnet.fromString(EEPROMRead(_NETWORK_SUBNET));
+  gateway.fromString(EEPROMRead(_NETWORK_GATEWAY));
+  dns.fromString(EEPROMRead(_NETWORK_DNS));
   //-------------------
   WiFi.persistent(false);  //Do not write settings to memory
   //0    (for lowest RF power output, supply current ~ 70mA
   //20.5 (for highest RF power output, supply current ~ 80mA
   WiFi.setTxPower((wifi_power_t)WIRELESS_PHY_POWER);
 
-  strncpy(WIRELESS_SSID, NVRAMRead(_WIRELESS_SSID), sizeof(WIRELESS_SSID));
-  strncpy(WIRELESS_PASSWORD, NVRAMRead(_WIRELESS_PASSWORD), sizeof(WIRELESS_PASSWORD));
+  WiFi.disconnect();  // stop the pending/active connections
+
+  //Hostname must be set BEFORE enableSTA: core 3.3.x only applies it at netif-enable time
+  WiFi.setHostname(RELAY_NAME);
+  WiFi.setAutoReconnect(false);
 
   if (WIRELESS_MODE == 0) {
     //=====================
     //WiFi Access Point Mode
     //=====================
-    uint8_t WIRELESS_HIDE = atoi(NVRAMRead(_WIRELESS_HIDE));
-
-    //WiFi.enableSTA(false);
-    //WiFi.enableAP(true);
-    WiFi.mode(WIFI_AP);
+    WiFi.enableSTA(false);
+    WiFi.enableAP(true);  // no radio teardown
+    //WiFi.mode(WIFI_AP);
     WiFi.softAPConfig(ip, gateway, subnet);
     bool ok = WiFi.softAP(WIRELESS_SSID, WIRELESS_PASSWORD, WIRELESS_CHANNEL, WIRELESS_HIDE, 3);  //max 3 clients
 
@@ -447,27 +488,34 @@ void setupWiFi(uint8_t timeout) {
     Serial.println(WiFi.softAPIP());
     Serial.println(WiFi.macAddress());
 #endif
-    //delay(100);  //Wait 100 ms for AP_START
+    strncpy(NETWORK_DHCPIP, NETWORK_IP, sizeof(NETWORK_DHCPIP));
   } else {
     //================
     //WiFi Client Mode
     //================
 
-    //WiFi.enableSTA(true);
-    //WiFi.enableAP(false);
-    WiFi.mode(WIFI_STA);
-    WiFi.setAutoReconnect(false);
-    WiFi.disconnect();
+    WiFi.enableAP(false);
+    WiFi.enableSTA(true);  // no radio teardown
+    //WiFi.mode(WIFI_STA);
 
-    uint8_t NETWORK_DHCP = atoi(NVRAMRead(_NETWORK_DHCP));
+    if (WIRELESS_HIDE == 1) {
+      WiFi.setScanMethod(WIFI_ALL_CHANNEL_SCAN);
+    }
+
     if (NETWORK_DHCP == 0) {
       WiFi.config(ip, gateway, subnet, dns);
     }
 
 #if WPA2ENTERPRISE
     if (WIRELESS_MODE == 2) {  // WPA2-Enterprise
-      const char *WIRELESS_USERNAME = NVRAMRead(_WIRELESS_USERNAME);
-      WiFi.begin(WIRELESS_SSID, WPA2_AUTH_PEAP, WIRELESS_USERNAME, WIRELESS_USERNAME, WIRELESS_PASSWORD, "");
+      const char *WIRELESS_USERNAME = EEPROMRead(_WIRELESS_USERNAME);
+      String root_ca = "";
+      if (LittleFS.exists("/radius.cer")) {
+        File file = LittleFS.open("/radius.cer", "r");
+        root_ca = file.readString();
+        file.close();
+      }
+      WiFi.begin(WIRELESS_SSID, WPA2_AUTH_PEAP, WIRELESS_USERNAME, WIRELESS_USERNAME, WIRELESS_PASSWORD, root_ca);
 
       // WPA2 Enterprise with PEAP
       //WiFi.begin(ssid, WPA2_AUTH_PEAP, EAP_IDENTITY, EAP_USERNAME, EAP_PASSWORD, root_ca, client_cert, client_key);
@@ -482,69 +530,92 @@ void setupWiFi(uint8_t timeout) {
     WiFi.begin(WIRELESS_SSID, WIRELESS_PASSWORD);
 #endif
 
-    if (WiFi.waitForConnectResult() != WL_CONNECTED) {
+    WiFi.setBandMode(WIFI_BAND_MODE_2G_ONLY);
+    WiFi.setAutoReconnect(true);
+
+    unsigned long deadline = millis() + 20000;
+    unsigned long lastConnectAttempt = millis();
+    while (WiFi.status() != WL_CONNECTED && millis() < deadline) {
 #if DEBUG
       /*
       0 = WL_IDLE_STATUS
       1 = WL_NO_SSID_AVAIL
-      6 = WL_WRONG_PASSWORD
+      4 = WL_CONNECT_FAILED
+      5 = WL_CONNECTION_LOST
+      6 = WL_DISCONNECTED
       */
-      Serial.println(WiFi.status());
+      Serial.printf("STA Connection State: %d\n", WiFi.status());
       //WiFi.printDiag();
 #endif
       delay(500);
 
-      if (timeout > 21) {
-#if DEBUG
-        Serial.println("Connection Failed! Rebooting...");
-#endif
-        //If client mode fails ESP32 will not be accessible
-        //Set Emergency AP SSID for re-configuration
-        NVRAMWrite(_WIRELESS_MODE, "0");
-        NVRAMWrite(_WIRELESS_HIDE, "0");
-        NVRAMWrite(_WIRELESS_SSID, RELAY_NAME);
-        NVRAMWrite(_WIRELESS_PASSWORD, "");
-        NVRAMWrite(_NETWORK_DHCP, "0");
-        //delay(100);
-        ESP.restart();
+      //First connect after an AP->STA radio restart can be rejected with reason 6 (NOT_AUTHED); retry it
+      if (millis() - lastConnectAttempt > 2000) {
+        lastConnectAttempt = millis();
+        esp_wifi_connect();  //no-op if a connect attempt is already in progress
       }
-      WIRELESS_PHY_POWER++;  //auto tune wifi power (minimum power to reach AP)
-      setupWiFi(timeout++);
-      return;
     }
-    NVRAMWrite(_WIRELESS_PHY_POWER, WIRELESS_PHY_POWER);  //save auto tuned wifi power
+    if (WiFi.status() == WL_CONNECTED) {
+      EEPROMWrite(_WIRELESS_PHY_POWER, WIRELESS_PHY_POWER);  //save auto tuned wifi power
 
-    WiFi.setAutoReconnect(true);
+      if (NETWORK_DHCP != 0) {
+        unsigned long dhcpTimeout = millis() + 10000;
+        while (WiFi.localIP() == IPAddress(0, 0, 0, 0) && millis() < dhcpTimeout) {
+          delay(200);
+#if DEBUG
+          Serial.println("DHCP...");
+#endif
+        }
+      }
 
-    //NTP Client to get time
+      //NTP Client to get time
 #if TIMECLIENT_NTP
-    //Set time via NTP, as required for x.509 validation
-    int tzOffset = -7;
-    const char *tz = NVRAMRead(_TIMEZONE_OFFSET);
-    if (strncmp(tz, "UTC", 3) == 0) {
-      tzOffset = atoi(tz + 3);  // read number after UTC
-      tzOffset = -tzOffset;     // invert sign
-    }
-    configTime(tzOffset * 3600, 0, "pool.ntp.org");  // offset in seconds
+      //Set time via NTP, as required for x.509 validation
+      int tzOffset = -7;
+      const char *tz = EEPROMRead(_TIMEZONE_OFFSET);
+      if (strncmp(tz, "UTC", 3) == 0) {
+        tzOffset = atoi(tz + 3);  // read number after UTC
+        tzOffset = -tzOffset;     // invert sign
+      }
+      configTime(tzOffset * 3600, 0, "pool.ntp.org");  // offset in seconds
 
-    struct tm timeinfo;
-    while (!getLocalTime(&timeinfo)) {
-      delay(500);
-    }
+      struct tm timeinfo;
+      while (!getLocalTime(&timeinfo)) {
+        delay(500);
+      }
 #if DEBUG
-    time_t now;
-    time(&now);
-    Serial.printf("Current time: %s", ctime(&now));
+      time_t now;
+      time(&now);
+      Serial.printf("Current time: %s", ctime(&now));
 #endif
 #endif
-    WiFi.localIP().toString().toCharArray(NETWORK_IP, sizeof(NETWORK_IP));
+      IPAddress dhcpip = WiFi.localIP();
+      snprintf(NETWORK_DHCPIP, sizeof(NETWORK_DHCPIP), "%u.%u.%u.%u", dhcpip[0], dhcpip[1], dhcpip[2], dhcpip[3]);
+      WiFi.localIP().toString().toCharArray(NETWORK_IP, sizeof(NETWORK_IP));
 #if EMAILCLIENT_SMTP
-    if (ALERTS[0] == '1')
-      smtpSend("DHCP IP", NETWORK_IP, 1);
+      if (ALERTS[0] == '1')
+        smtpSend("DHCP IP", NETWORK_DHCPIP, 1);
 #endif
 #if DEBUG
-    Serial.println(WiFi.localIP().toString());
+      Serial.println(NETWORK_DHCPIP);
 #endif
+    } else {
+#if DEBUG
+      Serial.println("STA Connection Failed!");
+#endif
+      WIRELESS_PHY_POWER++;                                  //auto tune wifi power (minimum power to reach AP)
+      EEPROMWrite(_WIRELESS_PHY_POWER, WIRELESS_PHY_POWER);  //persist tuned power for next boot
+
+      //Fall back to AP mode so the device stays reachable for re-configuration
+      WIRELESS_MODE = 0;
+      WIRELESS_HIDE = 0;
+      NETWORK_DHCP = 0;
+      strncpy(WIRELESS_SSID, RELAY_NAME, sizeof(WIRELESS_SSID));
+      strncpy(WIRELESS_PASSWORD, "", sizeof(WIRELESS_PASSWORD));
+      setupWiFi();
+      strncpy(NETWORK_DHCPIP, "0.0.0.0", sizeof(NETWORK_DHCPIP));
+    }
+
   }
 }
 
@@ -553,7 +624,7 @@ void setupWebServer() {
   //LittleFS.setConfig(config);
   LittleFS.begin(true);
 
-  strncpy(PLC_PASSWORD, NVRAMRead(_PLC_PASSWORD), sizeof(PLC_PASSWORD));
+  strncpy(PLC_PASSWORD, EEPROMRead(_PLC_PASSWORD), sizeof(PLC_PASSWORD));
   //==============================================
   //Async Web Server HTTP_GET, HTTP_POST, HTTP_ANY
   //==============================================
@@ -632,7 +703,7 @@ void setupWebServer() {
     } else if (request->hasParam("ntp")) {
       if (request->hasParam("tz")) {
         const char *tz = request->getParam("tz")->value().c_str();
-        NVRAMWrite(_TIMEZONE_OFFSET, tz);
+        EEPROMWrite(_TIMEZONE_OFFSET, tz);
       }
       time_t now;
       if (request->hasParam("epoch")) {
@@ -664,35 +735,34 @@ void setupWebServer() {
       response->print(timeinfo->tm_wday);
     } else if (strlen(PLC_PASSWORD) == 0) {
       if (request->hasParam("reset")) {
-        NVRAM_Erase();
-        //NVRAMWrite(_PNP, PNP);
-        bthread.detach();
-        bthread.attach(2, []() {
+        EEPROM_Erase();
+        //EEPROMWrite(_PNP, PNP);
+        ledthread.detach();
+        ledthread.attach(2, []() {
           ESP.restart();
         });
         response->print(F("..."));
       } else if (request->hasParam("smtp")) {
 #if EMAILCLIENT_SMTP
-        thread.once(1, []() {
-          smtpSend("Test", "OK", 1);
-        });
+        smtpSend("Test", "OK", 1);
         response->print(F("..."));
 #else
           response->print(F("No SMTP"));
 #endif
       } else if (request->hasParam("addons")) {
-        String filepath = "/addons/";
         if (request->hasParam("run")) {
 #if ADDONS
-          filepath += request->getParam("run")->value();
+          const char *runName = request->getParam("run")->value().c_str();
             if (addonBusy) {
             response->print(F("BUSY"));
           } else {
+            char path[64];
+            snprintf(path, sizeof(path), "/addons/%s", runName);
             addonBusy = true;
             // Run the addon on a task at the LOWEST priority so its busy
             // loops can never starve a WDT-subscribed task (idle, loop,
             // async_tcp); the task itself is not subscribed to the task WDT.
-            String *pname = new String(filepath);
+            String *pname = new String(path);
             if (xTaskCreate(addonTask, "addon", 4096, pname, tskIDLE_PRIORITY, NULL) != pdPASS) {
               delete pname;
               addonBusy = false;
@@ -703,18 +773,24 @@ void setupWebServer() {
           response->print(F("OK"));
 #endif
         } else if (request->hasParam("remove")) {
-          filepath += request->getParam("remove")->value();
-          if (LittleFS.remove(filepath)) {
+          char path[64];
+          snprintf(path, sizeof(path), "/addons/%s", request->getParam("remove")->value().c_str());
+          if (LittleFS.remove(path)) {
             response->print(F("OK"));
           }
         } else if (request->hasParam("enable")) {
 #if ADDONS
-          String name = request->getParam("enable")->value();
-          filepath = "/addons/" + name;
-          if (LittleFS.exists(filepath)) {
-            String active = name.substring(0, name.length() - 9) + ".bin";  // ".disabled" = 9 chars
-            if (LittleFS.rename(filepath, "/addons/" + active)) {
-              response->print(F("OK"));
+          const char *name = request->getParam("enable")->value().c_str();
+          char path[64];
+          snprintf(path, sizeof(path), "/addons/%s", name);
+          if (LittleFS.exists(path)) {
+            size_t len = strlen(name);
+            if (len >= 9) {  // strip trailing ".disabled" (9 chars)
+              char target[64];
+              snprintf(target, sizeof(target), "/addons/%.*s.bin", (int)(len - 9), name);
+              if (LittleFS.rename(path, target)) {
+                response->print(F("OK"));
+              }
             }
           }
 #endif
@@ -733,7 +809,7 @@ void setupWebServer() {
       } else if (request->hasParam("gpio")) {
         if (request->hasParam("save")) {
           const char *gpioParam = request->getParam("save")->value().c_str();
-          NVRAMWrite(_GPIO_ARRAY, gpioParam);
+          EEPROMWrite(_GPIO_ARRAY, gpioParam);
           loadRelayGPIO();
         } else {
           uint8_t count = 8;  //sizeof(RelayPin) / sizeof(RelayPin[0]);
@@ -752,8 +828,19 @@ void setupWebServer() {
         for (uint8_t i = 0; i < rule_count; i++) {
           plc_rule_t *r = &rules[i];
           //response->printf("[%u] %d - %d\n",  r->relay, r->start_epoch, r->end_epoch);
-          response->write('['); response->write('#');
-          response->print(r->relay); response->print(F("] "));
+          response->write('[');
+#if ADDONS
+          if (r->type[0] == 'B') {
+            response->print(r->name);
+          } else {
+            response->write('#');
+            response->print(r->relay);
+          }
+#else
+          response->write('#');
+          response->print(r->relay);
+#endif
+          response->print(F("] "));
           { int v = atoi(r->start_hour); if (v < 10) response->write('0'); response->print(v); } response->write(':');
           { int v = atoi(r->start_minute); if (v < 10) response->write('0'); response->print(v); } response->write(':');
           { int v = atoi(r->start_second); if (v < 10) response->write('0'); response->print(v); }
@@ -827,11 +914,11 @@ void setupWebServer() {
     if (request->hasParam("end")) {
       LOG_ENABLE = 0;
       LittleFS.remove("/l");
-      //NVRAMWrite(_LOG_ENABLE, "0");
+      //EEPROMWrite(_LOG_ENABLE, "0");
     } else if (request->hasParam("start")) {
       LOG_ENABLE = 1;
       dataLog("l");
-      //NVRAMWrite(_LOG_ENABLE, "1");
+      //EEPROMWrite(_LOG_ENABLE, "1");
     } else if (LittleFS.exists("/l")) {
       AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/l", FPSTR(text_plain));
       request->send(response);
@@ -845,25 +932,25 @@ void setupWebServer() {
     }
     request->redirect("/");
   });
-  server.on("/nvram.json", HTTP_GET, [](AsyncWebServerRequest *request) {
+  server.on("/eeprom.json", HTTP_GET, [](AsyncWebServerRequest *request) {
     if (request->params() > 0) {
       if (strlen(PLC_PASSWORD) == 0) {
         uint8_t i = atoi(request->getParam("offset")->value().c_str());
         if (request->hasParam("alert")) {
           ALERTS[i] = atoi(request->getParam("alert")->value().c_str());
-          NVRAMWrite(_ALERTS, ALERTS);
+          EEPROMWrite(_ALERTS, ALERTS);
         } else {
           /*
           const char *s = request->getParam("value")->value().c_str();
           char *endptr;
           int32_t v = strtol(s, &endptr, 10);  // base 10
           if (*endptr == '\0') {
-            NVRAMWrite(i, v);
+            EEPROMWrite(i, v);
           } else {
-            NVRAMWrite(i, s);
+            EEPROMWrite(i, s);
           }
           */
-          NVRAMWrite(i, request->getParam("value")->value().c_str());
+          EEPROMWrite(i, request->getParam("value")->value().c_str());
         }
         request->send(200, FPSTR(text_plain), request->getParam("value")->value());
       } else {
@@ -871,7 +958,7 @@ void setupWebServer() {
       }
     } else {
       AsyncResponseStream *response = request->beginResponseStream(FPSTR(text_json));
-      response->print(F("{\"nvram\": [\""));
+      response->print(F("{\"eeprom\": [\""));
       //esp_chip_info_t chip_info;
       //esp_chip_info(&chip_info);
       response->print(ESP_ARDUINO_VERSION_MAJOR); response->write('.');
@@ -900,7 +987,7 @@ void setupWebServer() {
           }
         } else {
             response->print(F(",\""));
-            response->print(NVRAMRead(i));
+            response->print(EEPROMRead(i));
             response->write('"');
         }
       }
@@ -909,7 +996,7 @@ void setupWebServer() {
     }
   });
   /*
-  server.on("/nvram", HTTP_GET, [](AsyncWebServerRequest *request) {
+  server.on("/eeprom", HTTP_GET, [](AsyncWebServerRequest *request) {
     char out[2048];
     size_t len = 0;
     for (uint32_t i = 0; i < EEPROM.length(); i++) {
@@ -918,7 +1005,7 @@ void setupWebServer() {
     request->send(200, FPSTR(text_plain), out);
   });
   */
-  server.on("/nvram", HTTP_POST, [](AsyncWebServerRequest *request) {
+  server.on("/eeprom", HTTP_POST, [](AsyncWebServerRequest *request) {
     AsyncResponseStream *response = request->beginResponseStream(FPSTR(text_plain));
     if (strlen(PLC_PASSWORD) > 0) {
       response->print(FPSTR(locked_html));
@@ -936,8 +1023,8 @@ void setupWebServer() {
         const AsyncWebParameter *modeParam = request->getParam("Mode", true);
         const AsyncWebParameter *dhcpParam = request->getParam("DHCP", true);
         if (modeParam->value() == "0") {
-          bthread.detach();
-          bthread.attach(4, []() {
+          ledthread.detach();
+          ledthread.attach(4, []() {
             ESP.restart();
           });
         } else if (dhcpParam->value() == "1") {
@@ -969,23 +1056,23 @@ void setupWebServer() {
           char *endptr;
           int32_t v = strtol(s, &endptr, 10);  // base 10
           if (*endptr == '\0') {
-            NVRAMWrite(n, v);
-            response->printf("[%d] %s:%u\n", n, s, NVRAMReadInt(n));
+            EEPROMWrite(n, v);
+            response->printf("[%d] %s:%u\n", n, s, EEPROMReadInt(n));
           } else {
-            NVRAMWrite(n, s);
-            response->printf("[%d] %s:%s\n", n, s, NVRAMRead(n));
+            EEPROMWrite(n, s);
+            response->printf("[%d] %s:%s\n", n, s, EEPROMRead(n));
           }
           */
-          NVRAMWrite(n, request->getParam(i)->value().c_str());
+          EEPROMWrite(n, request->getParam(i)->value().c_str());
           response->write('['); response->print(n); response->print(F("] "));
           response->print(request->getParam(i)->name().c_str());
-          response->write(':'); response->print(NVRAMRead(n));
+          response->write(':'); response->print(EEPROMRead(n));
           response->write('\n');
           n++;
         }
       }
 #if DEBUG
-      Serial.println("NVRAM Forcig Restart");
+      Serial.println("EEPROM Forcig Restart");
 #endif
     }
     request->send(response);
@@ -1038,8 +1125,8 @@ void setupWebServer() {
         response->print(MOSFET_SUPPORT);
       }
       response->addHeader(FPSTR(refresh_http), "8;url=/");
-      bthread.detach();
-      bthread.attach(2, []() {
+      ledthread.detach();
+      ledthread.attach(2, []() {
         if(plcProgramming != "") {
 #if DEBUG
           Serial.println("Restoring PLC:\n" + plcProgramming);
@@ -1065,7 +1152,7 @@ void setupWebServer() {
     //Serial.println((request->method() == HTTP_GET) ? "GET" : "POST");
     Serial.printf("\nRequest: %s\n", request->url().c_str());
 #endif
-    String file = request->url();
+    const String &file = request->url();
     if (LittleFS.exists(file)) {
       AsyncWebServerResponse *response = request->beginResponse(LittleFS, file, getContentType(file));
       if (file == "/find.html") {
@@ -1084,11 +1171,18 @@ void setupWebServer() {
 
 void loop() {
   //ArduinoOTA.handle();
+#if EMAILCLIENT_SMTP
+  smtpLoopTick();
+  if (smtpStep) {  //don't sleep or turn off WiFi while an email is in progress
+    delay(1000);
+    return;
+  }
+#endif
+  if (eepromDirty && (millis() - eepromLastWrite) > 2000) {  //flush settings a few seconds after the last change
+    EEPROMCommit();
+  }
   if ((millis() - webTimer) > delayBetweenWiFi) {  //track web activity for 5 minutes
     applyPLC();
-#if ADDONS
-    searchAddons(false);
-#endif
     readySleep();
   }
   //delay(1);
@@ -1105,7 +1199,12 @@ void readySleep() {
   }
 #endif
 
-  bool anyThreadActive = bthread.active();
+  bool anyThreadActive = ledthread.active();
+#if ADDONS
+  if (addonBusy) {
+    anyThreadActive = true;
+  }
+#endif
   for (uint8_t i = 0; i < 8; i++) {
     if (thread[i].active()) {
       anyThreadActive = true;
@@ -1115,7 +1214,7 @@ void readySleep() {
   if (!anyThreadActive) {
     esp_sleep_disable_wifi_wakeup();
     esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_SLOW_MEM, ESP_PD_OPTION_ON);  //RTC memory preserved
-    uint64_t sleep_us = (DEEP_SLEEP * 1000000ULL);
+    uint64_t sleep_us = (uint64_t)DEEP_SLEEP * 1000000ULL;
     esp_sleep_enable_timer_wakeup(sleep_us);
     /*
     esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_FAST_MEM, ESP_PD_OPTION_OFF);
@@ -1125,6 +1224,7 @@ void readySleep() {
     time(&now);
     rtcData.runTime = now + DEEP_SLEEP;  //add sleep time, when we wake up will be accurate.
     rtcData.runTime_ms += millis();
+    EEPROMCommit();  //don't sleep with uncommitted settings
     esp_deep_sleep_start();  //GPIO16 (D0) needs to be tied to RST to wake from deepSleep
 
     //TODO: Check state and use WAKE_RF_DEFAULT for second stage
@@ -1205,18 +1305,18 @@ void turnNPNorPNP(const uint8_t pin, const uint8_t state, const uint8_t transist
 }
 
 void blinky(uint16_t timer, uint16_t duration) {
-  bthread.detach();
+  ledthread.detach();
   uint16_t counter = duration * 2;  //toggle style
 
   pinMode(ledPin, OUTPUT);
 
   //mutable allows the lambda to modify its own copy of the captured variables:
-  bthread.attach_ms(timer, [counter]() mutable {
+  ledthread.attach_ms(timer, [counter]() mutable {
 #if DEBUG
     Serial.printf("blink: %u\n", counter);
 #endif
     if (counter == 0) {
-      bthread.detach();
+      ledthread.detach();
       digitalWrite(ledPin, LOW);
     } else {
       digitalWrite(ledPin, (counter & 1) ? HIGH : LOW);
@@ -1225,28 +1325,35 @@ void blinky(uint16_t timer, uint16_t duration) {
   });
 }
 //=============
-// NVRAM CONFIG
+// EEPROM CONFIG
 //=============
-void NVRAM_Erase() {
+void EEPROMCommit() {
+  if (eepromDirty) {
+    EEPROM.commit();
+    eepromDirty = false;
+  }
+}
+
+void EEPROM_Erase() {
   for (uint32_t i = 0; i < EEPROM.length(); i++) {
     EEPROM.write(i, 0xFF);
   }
   EEPROM.commit();
 }
 
-void NVRAMWrite(uint8_t address, uint32_t value) {
+void EEPROMWrite(uint8_t address, uint32_t value) {
   /*
   for (int i = 0; i < 4; i++) {
-    EEPROM.write(NVRAM_Map[address] + i, (value >> (8 * i)) & 0xFF);  // LSB first
+    EEPROM.write(EEPROM_Map[address] + i, (value >> (8 * i)) & 0xFF);  // LSB first
   }
   EEPROM.commit();
   */
   char txt[12];
   utoa(value, txt, 10);
-  NVRAMWrite(address, txt);
+  EEPROMWrite(address, txt);
 }
 
-void NVRAMWrite(uint8_t address, const char *txt) {
+void EEPROMWrite(uint8_t address, const char *txt) {
   /*
   int EEPROM_SIZE = 32;
   char buffer[EEPROM_SIZE];
@@ -1256,32 +1363,39 @@ void NVRAMWrite(uint8_t address, const char *txt) {
   free(buffer);
   */
   //const int EEPROM_SIZE = 32;
-  const int EEPROM_SIZE = (NVRAM_Map[(address + 1)] - NVRAM_Map[address]);
+  const int EEPROM_SIZE = (EEPROM_Map[(address + 1)] - EEPROM_Map[address]);
 #if DEBUG
-  Serial.printf("NVRAMWrite: %u > %u:%u %s\n", address, NVRAM_Map[address], EEPROM_SIZE, txt);
+  Serial.printf("EEPROMWrite: %u > %u:%u %s\n", address, EEPROM_Map[address], EEPROM_SIZE, txt);
 #endif
   int len = strlen(txt);
+  bool changed = false;
   for (int i = 0; i < EEPROM_SIZE; i++) {
+    uint8_t old = EEPROM.read(EEPROM_Map[address] + i);
     if (i < len) {
-      EEPROM.write(NVRAM_Map[address] + i, txt[i]);
+      if (old != (uint8_t)txt[i]) changed = true;
+      EEPROM.write(EEPROM_Map[address] + i, txt[i]);
       //EEPROM.write(address * EEPROM_SIZE + i, txt[i]);
     } else {
-      EEPROM.write(NVRAM_Map[address] + i, 0xFF);
+      if (old != 0xFF) changed = true;
+      EEPROM.write(EEPROM_Map[address] + i, 0xFF);
       //EEPROM.write(address * EEPROM_SIZE + i, 0xFF);
       break;
     }
   }
-  EEPROM.commit();
+  if (changed) {  // skip the flash write entirely when the value did not change
+    eepromDirty = true;
+    eepromLastWrite = millis();
+  }
 }
 /*
-uint32_t NVRAMReadInt(uint8_t address) {
+uint32_t EEPROMReadInt(uint8_t address) {
   uint32_t readValue = 0;
   for (int i = 0; i < 4; i++) {
-    readValue |= ((uint32_t)EEPROM.read(NVRAM_Map[address] + i) << (8 * i));
+    readValue |= ((uint32_t)EEPROM.read(EEPROM_Map[address] + i) << (8 * i));
   }
 #if DEBUG
-  uint8_t EEPROM_SIZE = (NVRAM_Map[(address + 1)] - NVRAM_Map[address]);
-  Serial.printf("\nNVRAMReadInt: %u > %u:%u ", address, NVRAM_Map[address], EEPROM_SIZE);
+  uint8_t EEPROM_SIZE = (EEPROM_Map[(address + 1)] - EEPROM_Map[address]);
+  Serial.printf("\nEEPROMReadInt: %u > %u:%u ", address, EEPROM_Map[address], EEPROM_SIZE);
   char buf[12];
   snprintf(buf, sizeof(buf), "%u", readValue);
   for (int i = 0; i < 12; i++) {
@@ -1294,26 +1408,26 @@ uint32_t NVRAMReadInt(uint8_t address) {
   return readValue;
 }
 */
-char *NVRAMRead(uint8_t address) {
+char *EEPROMRead(uint8_t address) {
   /*
   int EEPROM_SIZE = 32;
   char buffer[EEPROM_SIZE];
   EEPROM.get(address * EEPROM_SIZE, buffer);
   */
   //const int EEPROM_SIZE = 32;
-  uint8_t EEPROM_SIZE = (NVRAM_Map[(address + 1)] - NVRAM_Map[address]);
+  uint8_t EEPROM_SIZE = (EEPROM_Map[(address + 1)] - EEPROM_Map[address]);
   static char buffer[96];
 
   int i = 0;
   for (i = 0; i < EEPROM_SIZE; i++) {
-    uint8_t byte = EEPROM.read(NVRAM_Map[address] + i);
+    uint8_t byte = EEPROM.read(EEPROM_Map[address] + i);
     //char byte = EEPROM.read(address * EEPROM_SIZE + i);
     if (byte == 0xFF) break;  // stop at empty byte
     buffer[i] = byte;
   }
   buffer[i] = '\0';
 #if DEBUG
-  Serial.printf("\nNVRAMRead: %u > %u:%u ", address, NVRAM_Map[address], EEPROM_SIZE);
+  Serial.printf("\nEEPROMRead: %u > %u:%u ", address, EEPROM_Map[address], EEPROM_SIZE);
   for (int i = 0; i < EEPROM_SIZE; i++) {
     Serial.printf("%02X", buffer[i]);  // 2-digit uppercase hex with leading zero
   }
@@ -1325,7 +1439,7 @@ char *NVRAMRead(uint8_t address) {
   return buffer;
 }
 
-String getContentType(String filename) {
+String getContentType(const String &filename) {
   if (filename.endsWith("ml"))
     return FPSTR(text_html);
   else if (filename.endsWith("ss"))
@@ -1405,6 +1519,31 @@ void addonUpload(AsyncWebServerRequest *request, String filename, size_t index, 
 }
 
 #if EMAILCLIENT_SMTP
+void smtpDone(void) {
+  smtp.stop();
+  smtpStep = 0;
+  smtpSendDone = false;
+  smtpSubject = "";
+  smtpBody = "";
+  if (smtpWifiOffPending) {
+    smtpWifiOffPending = false;
+    WiFi.mode(WIFI_OFF);
+  }
+}
+
+void smtpCb(SMTPStatus status) {
+  if (status.isComplete)
+    smtpSendDone = true;
+#if DEBUG
+  if (status.progress.available)
+    ReadyMail.printf("ReadyMail[smtp][%d] Uploading file %s, %d %% completed\n", status.state, status.progress.filename.c_str(), status.progress.value);
+  else
+    ReadyMail.printf("ReadyMail[smtp][%d]%s\n", status.state, status.text.c_str());
+#else
+  (void)status;
+#endif
+}
+
 void smtpSend(const char *subject, const char *body, uint8_t now) {
 
 #if DEBUG
@@ -1417,99 +1556,117 @@ void smtpSend(const char *subject, const char *body, uint8_t now) {
 #endif
     return;
   }
-  /*
-  WIRELESS_MODE = NVRAMRead(_WIRELESS_MODE).toInt();
-  if (WIRELESS_MODE == 0)  //cannot send email in AP mode
+  if (smtpStep) {  //email already in progress
+#if DEBUG
+    Serial.println("Email: SMTP busy, skip");
+#endif
     return;
-  */
-  byte off = 0;
-  if (WiFi.getMode() == WIFI_OFF)  //alerts during off cycle
-  {
-    setupWiFi(0);  //turn on temporary
-    off = 1;
   }
 
-#if TIMECLIENT_NTP
-  time_t now;
-  time(&now);
-  smtp.setSystemTime(now);
-//#else
-//  session.time.ntp_server = F("pool.ntp.org");
-//  session.time.gmt_offset = -8;
-//  session.time.day_light_offset = 0;
-#if DEBUG
-  smtp.debug(1);
-  Serial.printf("Unix time: %u\n", timeClient.getEpochTime());
-#endif
-#endif
+  smtpSubject = subject;
+  smtpBody = body;
+  smtpSendDone = false;
+  smtpStartMs = millis();
 
-  const char *smtpURL = NVRAMRead(_SMTP_SERVER);
+  if (WiFi.getMode() == WIFI_OFF) {  //alerts during off cycle
+    setupWiFi();                    //turn on temporary
+    smtpWifiOffPending = true;
+  }
+
+  const char *smtpURL = EEPROMRead(_SMTP_SERVER);
   char smtpServer[64] = { 0 };
-  uint16_t smtpPort = 25;
+  uint16_t port = 25;
   const char *colon = strchr(smtpURL, ':');  // Find the colon
   if (colon) {
     size_t hostLen = colon - smtpURL;
     memcpy(smtpServer, smtpURL, hostLen);
 
     const char *portStr = colon + 1;  //points one character after the colon
-    smtpPort = atoi(portStr);         // assumes only digits
+    port = atoi(portStr);             // assumes only digits
   } else {
     // No colon found, copy full string as hostname
     strncpy(smtpServer, smtpURL, sizeof(smtpServer));
   }
-  session.server.host_name = smtpServer;
-  session.server.port = smtpPort;
-  session.login.email = NVRAMRead(_SMTP_USERNAME);
-  session.login.password = NVRAMRead(_SMTP_PASSWORD);
-  /*
-  File oauth = LittleFS.open("/oauth", "r");
-  if (oauth) {
-    session.login.accessToken = oauth.readString();  //XOAUTH2
-  } else {
-    session.login.password = NVRAMRead(_SMTP_PASSWORD);
-  }
-  */
-  //session.login.user_domain = F("127.0.0.1");
-  /*
-  if(smtpPort > 25) {
-    session.secure.mode = esp_mail_secure_mode_ssl_tls;
-  }else{
-    session.secure.mode = esp_mail_secure_mode_nonsecure;
-  }
-  */
-  //File mlog = LittleFS.open("/l", "w");
+  smtpHost = smtpServer;
+  smtpPort = port;
+  smtpSsl = (smtpPort == 465 || smtpPort == 587);
+  smtpStartTLS = (smtpPort == 587);
 
-  if (smtp.connect(&session)) {
-    message.sender.name = RELAY_NAME;
-    message.sender.email = NVRAMRead(_SMTP_USERNAME);
-    message.addRecipient("", NVRAMRead(_EMAIL_ALERT));
-    //message.addCc("");
-    //message.addBcc("");
-    message.subject = subject;
-    message.text.content = body;
-    if (ALERTS[7] == '1') {
-      message.priority = esp_mail_smtp_priority::esp_mail_smtp_priority_high;
-    } else {
-      message.priority = esp_mail_smtp_priority::esp_mail_smtp_priority_normal;
-    }
+  smtpStep = 1;
+}
+
+void smtpLoopTick(void) {
+  if (!smtpStep)
+    return;
+
+  if ((millis() - smtpStartMs) > 180000) {  //timeout watchdog
 #if DEBUG
-    if (!MailClient.sendMail(&smtp, &message, true)) {
-      Serial.println(smtp.errorReason());
-    }
-#else
-    MailClient.sendMail(&smtp, &message, true);
-    //mlog.print(smtp.errorReason());
+    Serial.println("Email: timeout");
 #endif
-    smtp.sendingResult.clear();  //clear sending result log
-    //}else{
-    //  mlog.print(String(smtp.statusCode()));
-    //  mlog.print(String(smtp.errorCode()));
-    //  mlog.print(smtp.errorReason());
+    smtpDone();
+    return;
   }
-  //mlog.close();
 
-  if (off == 1)
-    WiFi.mode(WIFI_OFF);
+  smtp.loop();
+
+  switch (smtpStep) {
+    case 1:  //connect (async)
+      ssl_client.enableSSL(smtpPort == 465);
+      if (smtpStartTLS)
+        smtp.setStartTLS([](bool &success) { success = ssl_client.connectSSL(); }, true);
+      else
+        smtp.setStartTLS(NULL, false);
+      smtp.connect(smtpHost, smtpPort, smtpCb, smtpSsl, false);
+      smtpStep = 2;
+      break;
+
+    case 2:  //wait connect, then authenticate
+      if (!smtp.isConnected()) {
+        smtpDone();
+        break;
+      }
+      if (!smtp.isProcessing()) {
+        smtp.authenticate(EEPROMRead(_SMTP_USERNAME), EEPROMRead(_SMTP_PASSWORD), readymail_auth_password, false);
+        smtpStep = 3;
+      }
+      break;
+
+    case 3:  //wait auth, then send
+      if (!smtp.isProcessing()) {
+        if (!smtp.isAuthenticated()) {
+          smtpDone();
+          break;
+        }
+        SMTPMessage msg;
+        msg.headers.add(rfc822_subject, smtpSubject);
+        msg.headers.add(rfc822_from, String(RELAY_NAME) + " <" + EEPROMRead(_SMTP_USERNAME) + ">");
+        msg.headers.add(rfc822_to, EEPROMRead(_EMAIL_ALERT));
+        if (ALERTS[7] == '1') {
+          msg.headers.addCustom("Importance", "High");
+          msg.headers.addCustom("X-MSMail-Priority", "High");
+          msg.headers.addCustom("X-Priority", "1");
+        } else {
+          msg.headers.addCustom("Importance", "Normal");
+          msg.headers.addCustom("X-MSMail-Priority", "Normal");
+          msg.headers.addCustom("X-Priority", "3");
+        }
+        msg.text.body(smtpBody);
+#if TIMECLIENT_NTP
+        msg.timestamp = time(nullptr);
+#endif
+        if (!smtp.send(msg, "SUCCESS,FAILURE,DELAY", false)) {
+          smtpDone();
+          break;
+        }
+        smtpStep = 4;
+      }
+      break;
+
+    case 4:  //wait send complete
+      if (smtpSendDone)
+        smtpDone();
+      break;
+  }
 }
 #endif
 
@@ -1598,10 +1755,15 @@ void parseRule(char *line) {
   plc_rule_t *r = &rules[rule_count];
   char *token;
 
-  // --- Relay ---
+  // --- Relay or Addon Name ---
   token = strtok(line, ":");
   if (!token) return;
-  sscanf(trim(token), "Relay%d", &r->relay);
+  char *rule_name = trim(token);
+  r->relay = 0;
+  r->fired = false;
+  strncpy(r->name, rule_name, sizeof(r->name) - 1);
+  r->name[sizeof(r->name) - 1] = '\0';
+  sscanf(rule_name, "Relay%d", &r->relay);
   //char tmp[2];
   //tmp[0] = token[5];  // single character
   //tmp[1] = '\0';      // null terminator
@@ -1802,21 +1964,50 @@ void addonTask(void *param) {
   vTaskDelete(NULL);
 }
 
-void searchAddons(bool remove) {
+// Case-insensitive lookup of /addons/<name>-esp32[s2].bin (skips .disabled)
+String findAddonFile(const String &name) {
+  String suffix = "-esp32.bin";
+#if CONFIG_IDF_TARGET_ESP32S2
+  suffix = "-esp32s2.bin";
+#endif
+  String exact = "/addons/" + name + suffix;
+  if (LittleFS.exists(exact)) {
+    return exact;
+  }
   File root = LittleFS.open("/addons");
   if (root) {
     File file = root.openNextFile();
     while (file) {
-      if (remove) {
-        file.close();
-        String fn = file.name();
-        LittleFS.remove("/addons/" + fn);
-      } else {
-        runAddon(file);
-        file.close();
+      String fn = file.name();
+      if (fn.endsWith(suffix)) {
+        String stem = fn.substring(0, fn.length() - suffix.length());
+        if (stem.equalsIgnoreCase(name)) {
+          file.close();
+          root.close();
+          return "/addons/" + fn;
+        }
       }
+      file.close();
       file = root.openNextFile();
     }
+  }
+  return "";
+}
+
+// Spawn an addon on the low-priority WDT-safe task by case-insensitive name
+void runAddonByName(const String &name) {
+  if (addonBusy) {
+    return;
+  }
+  String path = findAddonFile(name);
+  if (path.length() == 0) {
+    return;
+  }
+  addonBusy = true;
+  String *pname = new String(path);
+  if (xTaskCreate(addonTask, "addon", 4096, pname, tskIDLE_PRIORITY, NULL) != pdPASS) {
+    delete pname;
+    addonBusy = false;
   }
 }
 
@@ -1865,7 +2056,7 @@ uint32_t calculateDurationSeconds(const char *start_h, const char *start_m, cons
 }
 
 void loadRelayGPIO() {
-  strncpy(GPIO_ARRAY, NVRAMRead(_GPIO_ARRAY), sizeof(GPIO_ARRAY));
+  strncpy(GPIO_ARRAY, EEPROMRead(_GPIO_ARRAY), sizeof(GPIO_ARRAY));
 
   char buf[32] = { 0 };                       // buffer to copy the string
   strncpy(buf, GPIO_ARRAY, sizeof(buf) - 1);  // ensure null-terminated
@@ -1927,6 +2118,27 @@ bool timePLC(plc_rule_t *r, bool withseconds) {
 void applyPLC() {
   for (int i = 0; i < rule_count; i++) {
     plc_rule_t *r = &rules[i];
+#if ADDONS
+    if (r->type[0] == 'B') {  // BIN addon rule
+      if (timePLC(r, true)) {
+        if (r->action[0] == 'L') {  // LOOP: re-run each check while active
+          runAddonByName(r->name);
+        } else if (!r->fired) {     // ON: run once per window
+          r->fired = true;
+          runAddonByName(r->name);
+        }
+      } else {
+        r->fired = false;
+      }
+#if DEBUG
+      Serial.print("Addon ");
+      Serial.print(r->name);
+      Serial.println(" ACTIVE");
+#endif
+      continue;
+    }
+#endif
+    if (r->relay < 1 || r->relay > 8) continue;  //skip malformed relay rules
     uint8_t relay = r->relay - 1;  //convert relay# to array#
     uint8_t transistor = (r->type[0] == 'P') ? 1 : 0;
     if (timePLC(r, true)) {
@@ -1954,7 +2166,8 @@ void savePLC(String plc) {
     file.print(plc);
     file.close();
   }
-  NVRAMWrite(_MOSFET_SUPPORT, MOSFET_SUPPORT);
+  EEPROMWrite(_MOSFET_SUPPORT, MOSFET_SUPPORT);
+  EEPROMCommit();  //flush now: PLC save and post-update restore both restart afterwards
 }
 
 void setupPLC() {

@@ -67,7 +67,8 @@ Additional Libraries
 * https://github.com/ESP32Async/ESPAsyncWebServer
 * https://github.com/ESP32Async/AsyncTCP
 * https://github.com/Seeed-Studio/RTC_DS1307
-* https://github.com/mobizt/ESP-Mail-Client
+* https://github.com/mobizt/ReadyMail
+* https://github.com/mobizt/ESP_SSLClient
 
 File System (Web Interface)
 

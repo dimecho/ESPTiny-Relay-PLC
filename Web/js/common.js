@@ -113,7 +113,7 @@ function saveSetting(offset, value, callback) {
 	    	}
 	    	if (callback) callback(xhr.responseText);
 	    };
-	   	xhr.open('GET', '/nvram.json?offset=' + offset + '&value=' + value, true);
+	   	xhr.open('GET', '/eeprom.json?offset=' + offset + '&value=' + value, true);
 	    xhr.send();
 	}
 }
